@@ -1,0 +1,4 @@
+module ISO8211LibWrapper {
+    header "ISO8211LibWrapper.h"
+    export *
+}
