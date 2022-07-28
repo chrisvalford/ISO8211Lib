@@ -8,6 +8,7 @@
 #import <Foundation/Foundation.h>
 
 @interface ISO8211LibWrapper: NSObject
+-(instancetype)init;
 -(float) addition: (float) num1 : (float) num2;
 -(float) subtraction: (float) num1 : (float) num2;
 -(float) multiplication: (float) num1 : (float) num2;

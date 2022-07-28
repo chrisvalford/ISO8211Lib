@@ -12,6 +12,13 @@ CppClass cppObj;
 
 @implementation ISO8211LibWrapper
 
+-(instancetype)init {
+    self = [super init];
+    if(self) {
+        return self;
+    }
+}
+
 -(float) addition: (float) num1 : (float) num2 {
     return cppObj.addition(num1, num2);
 }
