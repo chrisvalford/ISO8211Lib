@@ -11,6 +11,14 @@ public struct ISO8211Lib {
         wrapper = ISO8211LibWrapper()
     }
     
+    public init(filePath: String){
+        wrapper = ISO8211LibWrapper(filePath)
+    }
+    
+    public func readCatalog(filePath: String) -> Bool {
+        return wrapper.readCatalog(filePath)
+    }
+    
     public func addition(value1: Float, value2: Float) -> Float {
         wrapper.addition(value1, value2)
     }

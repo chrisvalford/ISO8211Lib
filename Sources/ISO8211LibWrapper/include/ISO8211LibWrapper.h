@@ -9,6 +9,10 @@
 
 @interface ISO8211LibWrapper: NSObject
 -(instancetype)init;
+-(instancetype)init: (NSString *) filePath;
+
+-(BOOL)readCatalog: (NSString *) filePath;
+
 -(float) addition: (float) num1 : (float) num2;
 -(float) subtraction: (float) num1 : (float) num2;
 -(float) multiplication: (float) num1 : (float) num2;
