@@ -48,3 +48,7 @@ let package = Package(
             dependencies: ["ISO8211Lib"]),
     ]
 )
+
+//            resources: [
+//                .process("ISO8211Lib.xcdatamodeld")
+//            ]

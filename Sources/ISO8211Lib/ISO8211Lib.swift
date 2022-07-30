@@ -9,6 +9,8 @@ public struct ISO8211Lib {
 
     public init(){
         wrapper = ISO8211LibWrapper()
+        let service = DateTimeService()
+        service.create(Date(), note: "Startup")
     }
     
     public init(filePath: String){
