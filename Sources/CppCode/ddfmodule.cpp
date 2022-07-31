@@ -99,7 +99,9 @@ void DDFModule::Close()
 /*      remove them from the list.                                      */
 /* -------------------------------------------------------------------- */
     while( nCloneCount > 0 )
-        delete papoClones[0];
+        if (papoClones[0] != NULL) {
+            delete papoClones[0];
+        }
 
     nMaxCloneCount = 0;
     CPLFree( papoClones );

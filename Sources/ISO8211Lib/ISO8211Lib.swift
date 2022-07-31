@@ -17,8 +17,9 @@ public struct ISO8211Lib {
         wrapper = ISO8211LibWrapper(filePath)
     }
     
-    public func readCatalog(filePath: String) -> Bool {
-        return wrapper.readCatalog(filePath)
+    public func readCatalog(filePath: String) async {
+        let record = wrapper.readCatalog(filePath)
+        await record?.insert()
     }
     
     public func addition(value1: Float, value2: Float) -> Float {

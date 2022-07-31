@@ -12,7 +12,7 @@
 -(instancetype)init {
     self = [super init];
     if (self) {
-
+        _subfields = [[NSMutableArray alloc] init];
     }
     return self;
 }

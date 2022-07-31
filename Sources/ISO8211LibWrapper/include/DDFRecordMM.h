@@ -1,5 +1,5 @@
 //
-//  Header.h
+//  DDFRecordMM.h
 //  
 //
 //  Created by Christopher Alford on 30/7/22.
@@ -9,6 +9,6 @@
 
 @interface DDFRecordMM: NSObject
 
-@property (nonatomic) NSMutableArray *ddfFields;
+@property (nonatomic, retain) NSMutableArray *ddfFields;
 
 @end

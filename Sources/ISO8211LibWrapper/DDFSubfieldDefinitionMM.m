@@ -1,12 +1,22 @@
 //
-//  NSObject+DDFSubfieldDefinitionMM.m
+//  DDFSubfieldDefinitionMM.m
 //  
 //
 //  Created by Christopher Alford on 30/7/22.
 //
 
-#import "NSObject+DDFSubfieldDefinitionMM.h"
+#import "DDFSubfieldDefinitionMM.h"
 
-@implementation NSObject (DDFSubfieldDefinitionMM)
+@implementation DDFSubfieldDefinitionMM
+
+-(instancetype)init {
+    self = [super init];
+    if (self) {
+        _ddfIntValue = 0;
+        _ddfFloatValue = 0.0;
+    }
+    return self;
+}
 
 @end
+

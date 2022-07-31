@@ -6,7 +6,6 @@
  */
 
 #include "iso8211.hpp"
-//#include "DDFFieldDefn.h"
 #include "cpl_string.h"
 #include <ctype.h>
 

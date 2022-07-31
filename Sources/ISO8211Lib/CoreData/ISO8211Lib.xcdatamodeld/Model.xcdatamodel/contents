@@ -4,4 +4,26 @@
         <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="note" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="DDFFieldDefinitionMO" representedClassName="DDFFieldDefinitionMO" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <relationship name="toField" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DDFFieldMO" inverseName="toFieldDefinition" inverseEntity="DDFFieldMO"/>
+        <relationship name="toSubfields" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DDFSubfieldDefinitionMO" inverseName="toFieldDefinition" inverseEntity="DDFSubfieldDefinitionMO"/>
+    </entity>
+    <entity name="DDFFieldMO" representedClassName="DDFFieldMO" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="text" optional="YES" attributeType="String"/>
+        <relationship name="toFieldDefinition" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DDFFieldDefinitionMO" inverseName="toField" inverseEntity="DDFFieldDefinitionMO"/>
+        <relationship name="toRecord" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DDFRecordMO"/>
+    </entity>
+    <entity name="DDFRecordMO" representedClassName="DDFRecordMO" syncable="YES" codeGenerationType="class">
+        <relationship name="toFields" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DDFFieldMO"/>
+    </entity>
+    <entity name="DDFSubfieldDefinitionMO" representedClassName="DDFSubfieldDefinitionMO" syncable="YES" codeGenerationType="class">
+        <attribute name="ddfFloatValue" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="ddfIntValue" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="ddfStringValue" optional="YES" attributeType="String"/>
+        <attribute name="format" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <relationship name="toFieldDefinition" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="DDFFieldDefinitionMO" inverseName="toSubfields" inverseEntity="DDFFieldDefinitionMO"/>
+    </entity>
 </model>

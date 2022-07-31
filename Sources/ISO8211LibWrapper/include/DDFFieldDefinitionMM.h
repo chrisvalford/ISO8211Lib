@@ -1,5 +1,5 @@
 //
-//  Header.h
+//  DDFFieldDefinitionMM.h
 //  
 //
 //  Created by Christopher Alford on 30/7/22.
@@ -9,6 +9,8 @@
 
 @interface DDFFieldDefinitionMM: NSObject
 
-@property (nonatomic) NSString *name;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSMutableArray *subfields;
 
 @end
+
