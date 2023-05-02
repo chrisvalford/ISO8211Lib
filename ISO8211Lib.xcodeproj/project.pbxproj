@@ -15,6 +15,14 @@
 		2F1A41F82A002DC500B3C1EF /* ISO8211LibTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A41F72A002DC500B3C1EF /* ISO8211LibTests.swift */; };
 		2F1A42022A002DC500B3C1EF /* ISO8211LibUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42012A002DC500B3C1EF /* ISO8211LibUITests.swift */; };
 		2F1A42042A002DC500B3C1EF /* ISO8211LibUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42032A002DC500B3C1EF /* ISO8211LibUITestsLaunchTests.swift */; };
+		2F1A42382A002F0E00B3C1EF /* DDFModule.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42302A002F0E00B3C1EF /* DDFModule.m */; };
+		2F1A42392A002F0E00B3C1EF /* DDFField.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42322A002F0E00B3C1EF /* DDFField.m */; };
+		2F1A423A2A002F0E00B3C1EF /* DDFSubfieldDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42332A002F0E00B3C1EF /* DDFSubfieldDefinition.m */; };
+		2F1A423B2A002F0E00B3C1EF /* DDFUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42342A002F0E00B3C1EF /* DDFUtils.m */; };
+		2F1A423C2A002F0E00B3C1EF /* DDFFieldDefinition.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42352A002F0E00B3C1EF /* DDFFieldDefinition.m */; };
+		2F1A423D2A002F0E00B3C1EF /* DDFRecord.m in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42372A002F0E00B3C1EF /* DDFRecord.m */; };
+		2F1A423F2A003A1900B3C1EF /* StringProtocol+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A423E2A003A1900B3C1EF /* StringProtocol+.swift */; };
+		2F1A42412A003A3500B3C1EF /* String+.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F1A42402A003A3500B3C1EF /* String+.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +55,22 @@
 		2F1A41FD2A002DC500B3C1EF /* ISO8211LibUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ISO8211LibUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2F1A42012A002DC500B3C1EF /* ISO8211LibUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ISO8211LibUITests.swift; sourceTree = "<group>"; };
 		2F1A42032A002DC500B3C1EF /* ISO8211LibUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ISO8211LibUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		2F1A42102A002DEF00B3C1EF /* ISO8211Lib-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "ISO8211Lib-Bridging-Header.h"; sourceTree = "<group>"; };
+		2F1A422B2A002F0E00B3C1EF /* DDFField.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFField.h; sourceTree = "<group>"; };
+		2F1A422C2A002F0E00B3C1EF /* DDFSubfieldDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFSubfieldDefinition.h; sourceTree = "<group>"; };
+		2F1A422D2A002F0E00B3C1EF /* DDFUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFUtils.h; sourceTree = "<group>"; };
+		2F1A422E2A002F0E00B3C1EF /* ISO8211.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISO8211.h; sourceTree = "<group>"; };
+		2F1A422F2A002F0E00B3C1EF /* DDFRecord.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFRecord.h; sourceTree = "<group>"; };
+		2F1A42302A002F0E00B3C1EF /* DDFModule.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFModule.m; sourceTree = "<group>"; };
+		2F1A42312A002F0E00B3C1EF /* DDFFieldDefinition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFFieldDefinition.h; sourceTree = "<group>"; };
+		2F1A42322A002F0E00B3C1EF /* DDFField.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFField.m; sourceTree = "<group>"; };
+		2F1A42332A002F0E00B3C1EF /* DDFSubfieldDefinition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFSubfieldDefinition.m; sourceTree = "<group>"; };
+		2F1A42342A002F0E00B3C1EF /* DDFUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFUtils.m; sourceTree = "<group>"; };
+		2F1A42352A002F0E00B3C1EF /* DDFFieldDefinition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFFieldDefinition.m; sourceTree = "<group>"; };
+		2F1A42362A002F0E00B3C1EF /* DDFModule.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DDFModule.h; sourceTree = "<group>"; };
+		2F1A42372A002F0E00B3C1EF /* DDFRecord.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DDFRecord.m; sourceTree = "<group>"; };
+		2F1A423E2A003A1900B3C1EF /* StringProtocol+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StringProtocol+.swift"; sourceTree = "<group>"; };
+		2F1A42402A003A3500B3C1EF /* String+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,12 +121,16 @@
 		2F1A41E12A002DC400B3C1EF /* ISO8211Lib */ = {
 			isa = PBXGroup;
 			children = (
+				2F1A422A2A002F0E00B3C1EF /* OBJC */,
 				2F1A41E22A002DC400B3C1EF /* AppDelegate.swift */,
 				2F1A41E42A002DC400B3C1EF /* ViewController.swift */,
+				2F1A423E2A003A1900B3C1EF /* StringProtocol+.swift */,
+				2F1A42402A003A3500B3C1EF /* String+.swift */,
 				2F1A41E92A002DC500B3C1EF /* Assets.xcassets */,
 				2F1A41EB2A002DC500B3C1EF /* Main.storyboard */,
 				2F1A41EE2A002DC500B3C1EF /* ISO8211Lib.entitlements */,
 				2F1A41E62A002DC400B3C1EF /* ISO8211Lib.xcdatamodeld */,
+				2F1A42102A002DEF00B3C1EF /* ISO8211Lib-Bridging-Header.h */,
 			);
 			path = ISO8211Lib;
 			sourceTree = "<group>";
@@ -122,6 +150,26 @@
 				2F1A42032A002DC500B3C1EF /* ISO8211LibUITestsLaunchTests.swift */,
 			);
 			path = ISO8211LibUITests;
+			sourceTree = "<group>";
+		};
+		2F1A422A2A002F0E00B3C1EF /* OBJC */ = {
+			isa = PBXGroup;
+			children = (
+				2F1A422E2A002F0E00B3C1EF /* ISO8211.h */,
+				2F1A422B2A002F0E00B3C1EF /* DDFField.h */,
+				2F1A42322A002F0E00B3C1EF /* DDFField.m */,
+				2F1A42312A002F0E00B3C1EF /* DDFFieldDefinition.h */,
+				2F1A42352A002F0E00B3C1EF /* DDFFieldDefinition.m */,
+				2F1A42362A002F0E00B3C1EF /* DDFModule.h */,
+				2F1A42302A002F0E00B3C1EF /* DDFModule.m */,
+				2F1A422F2A002F0E00B3C1EF /* DDFRecord.h */,
+				2F1A42372A002F0E00B3C1EF /* DDFRecord.m */,
+				2F1A422C2A002F0E00B3C1EF /* DDFSubfieldDefinition.h */,
+				2F1A42332A002F0E00B3C1EF /* DDFSubfieldDefinition.m */,
+				2F1A422D2A002F0E00B3C1EF /* DDFUtils.h */,
+				2F1A42342A002F0E00B3C1EF /* DDFUtils.m */,
+			);
+			path = OBJC;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -192,6 +240,7 @@
 				TargetAttributes = {
 					2F1A41DE2A002DC400B3C1EF = {
 						CreatedOnToolsVersion = 14.3;
+						LastSwiftMigration = 1430;
 					};
 					2F1A41F22A002DC500B3C1EF = {
 						CreatedOnToolsVersion = 14.3;
@@ -256,7 +305,15 @@
 			files = (
 				2F1A41E82A002DC400B3C1EF /* ISO8211Lib.xcdatamodeld in Sources */,
 				2F1A41E52A002DC400B3C1EF /* ViewController.swift in Sources */,
+				2F1A423D2A002F0E00B3C1EF /* DDFRecord.m in Sources */,
+				2F1A423C2A002F0E00B3C1EF /* DDFFieldDefinition.m in Sources */,
+				2F1A423B2A002F0E00B3C1EF /* DDFUtils.m in Sources */,
+				2F1A42382A002F0E00B3C1EF /* DDFModule.m in Sources */,
+				2F1A423A2A002F0E00B3C1EF /* DDFSubfieldDefinition.m in Sources */,
+				2F1A42412A003A3500B3C1EF /* String+.swift in Sources */,
 				2F1A41E32A002DC400B3C1EF /* AppDelegate.swift in Sources */,
+				2F1A423F2A003A1900B3C1EF /* StringProtocol+.swift in Sources */,
+				2F1A42392A002F0E00B3C1EF /* DDFField.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -422,6 +479,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ISO8211Lib/ISO8211Lib.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -440,6 +498,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = digital.marine.ISO8211Lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ISO8211Lib/ISO8211Lib-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -449,6 +509,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = ISO8211Lib/ISO8211Lib.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -467,6 +528,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = digital.marine.ISO8211Lib;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "ISO8211Lib/ISO8211Lib-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

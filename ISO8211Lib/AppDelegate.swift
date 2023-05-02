@@ -9,12 +9,40 @@ import Cocoa
 
 @main
 class AppDelegate: NSObject, NSApplicationDelegate {
-
     
-
+    var ddfModule: DDFModule?
+    var filePath: String?
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Insert code here to initialize your application
+        // Open the file.
+        if filePath == nil {
+            filePath = "/Users/christopheralford/Downloads/CATALOG.031"
+        }
+        if ddfModule == nil {
+            ddfModule = DDFModule()
+        }
+        if ddfModule?.open(filePath, bFailQuietly: 0) == 0 {
+            exit(1)
+        }
+        
+        // Loop reading records till there are none left.
+        var iRecord = 0
+        
+        while true {
+            guard let poRecord: DDFRecord = ddfModule?.readRecord else {
+                break
+            }
+            iRecord += 1
+            debugPrint("Record %d (%d bytes)\n", iRecord, poRecord.getDataSize)
+            
+            // Loop over each field in this particular record.
+            // TODO: Check why this value is too large
+            let fieldCount = poRecord.getFieldCount - 1
+            for iField in 0 ..< fieldCount {
+                let poField: DDFField = poRecord.getField(iField)
+                viewRecordField(poField)
+            }
+        }
     }
 
     func applicationWillTerminate(_ aNotification: Notification) {
@@ -23,6 +51,130 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
         return true
+    }
+    
+    /**
+    *      Dump the contents of a field instance in a record.
+    */
+    func viewRecordField(_ poField: DDFField) {
+        var nBytesRemaining: Int
+        var pachFieldData: String
+        var poFieldDefn: DDFFieldDefinition = poField.getFieldDefn
+        
+        // Report general information about the field.
+        debugPrint("    Field %s: %@\n",
+                   poFieldDefn.getName ?? "UNKNOWN",
+                   poFieldDefn.getDescription ?? "UNKNOWN")
+        
+        // Get pointer to this fields raw data.  We will move through
+        // it consuming data as we report subfield values.
+        pachFieldData = poField.getData
+        nBytesRemaining = poField.getDataSize
+
+        // Loop over the repeat count for this fields subfields.
+        // The repeat count will almost always be one.
+        for _ in 0 ..< poField.getRepeatCount {
+            // Loop over all the subfields of this field, advancing
+            // the data pointer as we consume data.
+            for iSF in 0 ..< poFieldDefn.getSubfieldCount {
+                let poSFDefn: DDFSubfieldDefinition = poFieldDefn.getSubfield(iSF)
+                var nBytesConsumed = viewSubfield(poSFDefn,
+                                                  pachFieldData: pachFieldData,
+                                                  nBytesRemaining: nBytesRemaining)
+                nBytesRemaining -= nBytesConsumed
+                pachFieldData = String(pachFieldData.suffix(nBytesConsumed))
+            }
+        }
+    }
+    
+    /**
+     * Dump the contents of a subfield
+     */
+    func viewSubfield(_ poSFDefn: DDFSubfieldDefinition,
+                      pachFieldData: String,
+                      nBytesRemaining: Int) -> Int {
+        var nBytesConsumed: Int32 = 0
+        switch poSFDefn.getType {
+        case .int:
+            if poSFDefn.getBinaryFormat == DDFBinaryFormat.uInt {
+                debugPrint( "        %s = %u\n",
+                            poSFDefn.name ?? "MISSING",
+                            poSFDefn.extractIntData(pachFieldData,
+                                                    nMaxBytes: Int32(nBytesRemaining),
+                                                    pnConsumedBytes: &nBytesConsumed)
+                )
+            } else {
+                debugPrint( "        %s = %d\n",
+                            poSFDefn.name ?? "MISSING",
+                            poSFDefn.extractIntData( pachFieldData,
+                                                     nMaxBytes: Int32(nBytesRemaining),
+                                                     pnConsumedBytes: &nBytesConsumed)
+                )
+            }
+            
+        case .float:
+            debugPrint( "        %s = %f\n",
+                        poSFDefn.name ?? "MISSING",
+                        poSFDefn.extractFloatData(pachFieldData,
+                                                  nMaxBytes: Int32(nBytesRemaining),
+                                                  pnConsumedBytes: &nBytesConsumed)
+            )
+            
+        case .string:
+            debugPrint("        %s = '%@'\n",
+                       poSFDefn.name ?? "MISSING",
+                       poSFDefn.extractStringData(pachFieldData,
+                                                  nMaxBytes: Int32(nBytesRemaining),
+                                                  pnConsumedBytes: &nBytesConsumed) ?? ""
+            )
+            
+        case .binaryString:
+            //rjensen 19-Feb-2002 5 integer variables to decode NAME and LNAM
+            var vrid_rcnm = 0
+            var vrid_rcid = 0
+            var foid_agen = 0
+            var foid_find = 0
+            var foid_fids = 0
+            
+            // Was GByte
+            let pabyBString = poSFDefn.extractStringData(pachFieldData,
+                                                         nMaxBytes: Int32(nBytesRemaining),
+                                                         pnConsumedBytes: &nBytesConsumed).utf8CString
+            
+            debugPrint("        %s = 0x", poSFDefn.name ?? "MISSING")
+            for i in 0 ..< min(Int(nBytesConsumed), 24) {
+                debugPrint( "%02X", pabyBString[i] )
+            }
+            
+            if nBytesConsumed > 24 {
+                debugPrint( "%s", "..." )
+            }
+            
+            // rjensen 19-Feb-2002 S57 quick hack. decode NAME and LNAM bitfields
+            if  "NAME" == poSFDefn.name {
+                vrid_rcnm = Int(pabyBString[0])
+                let bs1 = Int(pabyBString[1])
+                let bs2 = Int(pabyBString[2]) * 256
+                let bs3 = Int(pabyBString[3]) * 65536
+                let bs4 = Int(pabyBString[4]) * 16777216
+                vrid_rcid = bs1 + bs2 + bs3 + bs4
+                debugPrint("\tVRID RCNM = %d,RCID = %u",vrid_rcnm, vrid_rcid)
+            } else if "LNAM" == poSFDefn.name {
+                foid_agen = Int(pabyBString[0]) + (Int(pabyBString[1]) * 256)
+                let bs2 = Int(pabyBString[2])
+                let bs3 = Int(pabyBString[3]) * 256
+                let bs4 = Int(pabyBString[4]) * 65536
+                let bs5 = Int(pabyBString[5]) * 16777216
+                foid_find = bs2 + bs3 + bs4 + bs5
+                foid_fids = Int(pabyBString[6]) + (Int(pabyBString[7])*256)
+                debugPrint("\tFOID AGEN = %u,FIDN = %u,FIDS = %u", foid_agen, foid_find, foid_fids)
+            }
+            debugPrint( "\n" );
+        @unknown default:
+            debugPrint("Unknown Type")
+        }
+        
+        return Int(nBytesConsumed)
     }
 
     // MARK: - Core Data stack
