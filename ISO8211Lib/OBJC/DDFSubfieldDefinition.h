@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
 @property NSString *name; // a.k.a. subfield mnemonic
 
 /** Get pointer to subfield format string */
-@property (readonly) NSString *GetFormat;
+@property (readonly) NSString *getFormat;
 
 /**
 * While interpreting the format string we don't support:
@@ -43,7 +43,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
 *       o 'X' for unused data ... this should really be filtered out by DDFFieldDefn::ApplyFormats(), but isn't.
 *       o 'B' bitstrings that aren't a multiple of eight.
 */
--(int) SetFormat: (NSString *) pszFormat;
+-(int) setFormat: (NSString *) pszFormat;
 
 /**
  * Get the general type of the subfield.  This can be used to
@@ -51,7 +51,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  * `ExtractStringData()` should be used.
  * - Returns: The subfield type.  One of `DDFInt`, `DDFFloat`, `DDFString` or `DDFBinaryString`.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly) DDFDataType GetType;
+@property (NS_NONATOMIC_IOSONLY, readonly) DDFDataType getType;
 
 // bIsVariable determines whether we using the
 // chFormatDelimeter (TRUE), or the fixed width (FALSE).
@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  * - Returns: The subfield's numeric value (or zero if it isn't numeric).
  *
  */
--(double) ExtractFloatData: (NSString *) pachSourceData
+-(double) extractFloatData: (NSString *) pachSourceData
                  nMaxBytes: (int) nMaxBytes
            pnConsumedBytes: (int *) pnConsumedBytes;
 
@@ -106,7 +106,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  * - Returns: The subfield's numeric value (or zero if it isn't numeric).
  *
  */
--(int) ExtractIntData: (NSString *) pachSourceData
+-(int) extractIntData: (NSString *) pachSourceData
             nMaxBytes: (int) nMaxBytes
       pnConsumedBytes: (int *) pnConsumedBytes;
 
@@ -140,7 +140,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  * be freed by the application.
  *
  */
--(NSString *) ExtractStringData: (NSString *) pachSourceData
+-(NSString *) extractStringData: (NSString *) pachSourceData
                          nMaxBytes: (int) nMaxBytes
                    pnConsumedBytes: (int *) pnConsumedBytes;
 
@@ -167,7 +167,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  * - Returns: The number of bytes at pachSourceData which are actual data for
  * this record (not including unit, or field terminator).
  */
-- (int) GetDataLength: (NSString *) pachSourceData
+- (int) getDataLength: (NSString *) pachSourceData
             nMaxBytes: (int) nMaxBytes
       pnConsumedBytes: (int *) pnConsumedBytes;
 
@@ -179,28 +179,28 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  *   - nMaxBytes: Maximum number of bytes available in pachData.
  *   - fp: File to write report to.
  */
--(void) DumpData: (NSString *) pachData
+-(void) dumpData: (NSString *) pachData
        nMaxBytes: (int) nMaxBytes
               fp: (FILE *) fp;
 
--(int) FormatStringValue: (NSString *) pachData
+-(int) formatStringValue: (NSString *) pachData
          nBytesAvailable: (int) nBytesAvailable
              pnBytesUsed: (int *) pnBytesUsed
                 pszValue: (const char *) pszValue
             nValueLength: (int) nValueLength; // TODO: Default value = -1;
 
--(int) FormatIntValue: (NSString *) pachData
+-(int) formatIntValue: (NSString *) pachData
       nBytesAvailable: (int) nBytesAvailable
           pnBytesUsed: (int *) pnBytesUsed
             nNewValue: (int) nNewValue;
 
--(int) FormatFloatValue: (NSString *) pachData
+-(int) formatFloatValue: (NSString *) pachData
         nBytesAvailable: (int) nBytesAvailable
             pnBytesUsed: (int *)pnBytesUsed
              dfNewValue: (double) dfNewValue;
 
 /** Get the subfield width (zero for variable). */
-@property (NS_NONATOMIC_IOSONLY, readonly) int GetWidth; // zero for variable.
+@property (NS_NONATOMIC_IOSONLY, readonly) int getWidth; // zero for variable.
 
 /**
  * Get default data.
@@ -218,7 +218,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  *
  * - Returns: `TRUE` on success or `FALSE` on failure or if the passed buffer is too small to hold the default.
  */
--(int) GetDefaultValue: (NSString *)pachData
+-(int) getDefaultValue: (NSString *)pachData
        nBytesAvailable: (int) nBytesAvailable
            pnBytesUsed: (int *) pnBytesUsed;
 
@@ -230,7 +230,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
  *
  * - Parameter fp: The standard io file handle to write to.  ie. stderr
  */
--(void) Dump: (FILE *) fp;
+-(void) dump: (FILE *) fp;
 
 /**
   Binary format: this is the digit immediately following the B or b for
@@ -245,9 +245,9 @@ typedef NS_ENUM(NSInteger, DDFBinaryFormat) {
     DDFBinaryFormatFloatComplex=5
 };
 
-@property (NS_NONATOMIC_IOSONLY, readonly) DDFBinaryFormat GetBinaryFormat;
+@property (NS_NONATOMIC_IOSONLY, readonly) DDFBinaryFormat getBinaryFormat;
 
--(void) Log;
+-(void) log;
 
 @end
 

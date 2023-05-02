@@ -59,12 +59,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func viewRecordField(_ poField: DDFField) {
         var nBytesRemaining: Int
         var pachFieldData: String
-        var poFieldDefn: DDFFieldDefinition = poField.getFieldDefn
+        var poFieldDefn: DDFFieldDefinition = poField.getFieldDefn!
         
         // Report general information about the field.
         debugPrint("    Field %s: %@\n",
-                   poFieldDefn.getName ?? "UNKNOWN",
-                   poFieldDefn.getDescription ?? "UNKNOWN")
+                   poFieldDefn.getName ,
+                   poFieldDefn.getDescription )
         
         // Get pointer to this fields raw data.  We will move through
         // it consuming data as we report subfield values.
@@ -76,13 +76,14 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         for _ in 0 ..< poField.getRepeatCount {
             // Loop over all the subfields of this field, advancing
             // the data pointer as we consume data.
-            for iSF in 0 ..< poFieldDefn.getSubfieldCount {
-                let poSFDefn: DDFSubfieldDefinition = poFieldDefn.getSubfield(iSF)
-                var nBytesConsumed = viewSubfield(poSFDefn,
-                                                  pachFieldData: pachFieldData,
-                                                  nBytesRemaining: nBytesRemaining)
-                nBytesRemaining -= nBytesConsumed
-                pachFieldData = String(pachFieldData.suffix(nBytesConsumed))
+            for iSF in 0 ..< poFieldDefn.getSubfieldCount() {
+                if let poSFDefn: DDFSubfieldDefinition = poFieldDefn.getSubfield(i: iSF) {
+                    var nBytesConsumed = viewSubfield(poSFDefn,
+                                                      pachFieldData: pachFieldData,
+                                                      nBytesRemaining: nBytesRemaining)
+                    nBytesRemaining -= nBytesConsumed
+                    pachFieldData = String(pachFieldData.suffix(nBytesConsumed))
+                }
             }
         }
     }

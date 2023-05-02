@@ -47,15 +47,15 @@ char *pachBuffer;
     pachBuffer = NULL;
 }
 
--(void) SetName: (NSString *) newName {
+-(void) setName: (NSString *) newName {
     _name = [newName stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
 }
 
--(NSString *) GetFormat {
+-(NSString *) getFormat {
     return pszFormatString;
 }
 
--(int) SetFormat: (NSString *) pszFormat {
+-(int) setFormat: (NSString *) pszFormat {
     pszFormatString = NULL;
     pszFormatString = [pszFormat copy];
     
@@ -127,44 +127,44 @@ char *pachBuffer;
     return TRUE;
 }
 
--(DDFDataType) GetType {
+-(DDFDataType) getType {
     return eType;
 }
 
--(int) GetWidth {
+-(int) getWidth {
     return nFormatWidth;
 }
 
--(DDFBinaryFormat) GetBinaryFormat {
+-(DDFBinaryFormat) getBinaryFormat {
     return eBinaryFormat;
 }
 
--(void) Dump: (FILE *) fp {
+-(void) dump: (FILE *) fp {
     fprintf( fp, "    DDFSubfieldDefn:\n" );
     fprintf( fp, "        Label = '%s'\n", [_name UTF8String]);
     fprintf( fp, "        FormatString = '%s'\n", [pszFormatString cStringUsingEncoding: NSUTF8StringEncoding]);
 }
 
--(void) Log {
+-(void) log {
     NSLog(@"    DDFSubfieldDefn:\n" );
     NSLog(@"        Label = '%@'\n", _name );
     NSLog(@"        FormatString = '%s'\n", [pszFormatString cStringUsingEncoding: NSUTF8StringEncoding]);
 }
 
--(void) DumpData: (NSString *) pachData
+-(void) dumpData: (NSString *) pachData
        nMaxBytes: (int) nMaxBytes
               fp: (FILE *) fp {
     if(eType == DDFFloat) {
         fprintf(fp, "      Subfield '%s' = %f\n",
                 [_name UTF8String],
-                [self ExtractFloatData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: NULL]);
+                [self extractFloatData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: NULL]);
     } else if( eType == DDFInt ) {
         fprintf(fp, "      Subfield '%s' = %d\n",
                 [_name UTF8String],
-                [self ExtractIntData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: NULL]);
+                [self extractIntData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: NULL]);
     } else if(eType == DDFBinaryString) {
         int nBytes, i;
-        GByte *pabyBString = (GByte *) [[self ExtractStringData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: &nBytes] cStringUsingEncoding: NSUTF8StringEncoding];
+        GByte *pabyBString = (GByte *) [[self extractStringData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: &nBytes] cStringUsingEncoding: NSUTF8StringEncoding];
         
         fprintf(fp, "      Subfield '%s' = 0x", [_name UTF8String]);
         for(i = 0; i < MIN(nBytes,24); i++) {
@@ -177,11 +177,11 @@ char *pachBuffer;
     } else {
         fprintf(fp, "      Subfield '%s' = '%s'\n",
                 [_name UTF8String],
-                [[self ExtractStringData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: NULL] cStringUsingEncoding: NSUTF8StringEncoding]);
+                [[self extractStringData: pachData nMaxBytes: nMaxBytes pnConsumedBytes: NULL] cStringUsingEncoding: NSUTF8StringEncoding]);
     }
 }
 
--(double) ExtractFloatData: (NSString *) pachSourceData
+-(double) extractFloatData: (NSString *) pachSourceData
                  nMaxBytes: (int) nMaxBytes
            pnConsumedBytes: (int *) pnConsumedBytes {
     switch([pszFormatString characterAtIndex: 0]) {
@@ -190,7 +190,7 @@ char *pachBuffer;
         case 'R':
         case 'S':
         case 'C':
-            return atof([[self ExtractStringData: pachSourceData
+            return atof([[self extractStringData: pachSourceData
                                       nMaxBytes: nMaxBytes
                                 pnConsumedBytes: pnConsumedBytes] cStringUsingEncoding: NSUTF8StringEncoding]);
             
@@ -276,7 +276,7 @@ char *pachBuffer;
     
 }
 
--(int) ExtractIntData: (NSString *) pachSourceData
+-(int) extractIntData: (NSString *) pachSourceData
             nMaxBytes: (int) nMaxBytes
       pnConsumedBytes: (int *) pnConsumedBytes {
     switch([pszFormatString characterAtIndex: 0]) {
@@ -285,7 +285,7 @@ char *pachBuffer;
         case 'R':
         case 'S':
         case 'C':
-            return atoi([[self ExtractStringData: pachSourceData nMaxBytes: nMaxBytes pnConsumedBytes: pnConsumedBytes] cStringUsingEncoding: NSUTF8StringEncoding]);
+            return atoi([[self extractStringData: pachSourceData nMaxBytes: nMaxBytes pnConsumedBytes: pnConsumedBytes] cStringUsingEncoding: NSUTF8StringEncoding]);
             
         case 'B':
         case 'b':
@@ -372,13 +372,13 @@ char *pachBuffer;
     return 0;
 }
 
--(NSString  *) ExtractStringData: (NSString *) pachSourceData
+-(NSString  *) extractStringData: (NSString *) pachSourceData
                          nMaxBytes: (int) nMaxBytes
                    pnConsumedBytes: (int *) pnConsumedBytes {
     if (pachSourceData == NULL) {
         return NULL;
     }
-    int nLength = [self GetDataLength: pachSourceData nMaxBytes: nMaxBytes pnConsumedBytes: pnConsumedBytes];
+    int nLength = [self getDataLength: pachSourceData nMaxBytes: nMaxBytes pnConsumedBytes: pnConsumedBytes];
     
     // Do we need to grow the buffer?
     if(nMaxBufChars < nLength+1) {
@@ -393,7 +393,7 @@ char *pachBuffer;
     return [NSString stringWithCString: pachBuffer encoding: NSUTF8StringEncoding];
 }
 
--(int) FormatStringValue: (NSMutableString *) pachData
+-(int) formatStringValue: (NSMutableString *) pachData
          nBytesAvailable: (int) nBytesAvailable
              pnBytesUsed: (int *) pnBytesUsed
                 pszValue: (const char *) pszValue
@@ -427,7 +427,7 @@ char *pachBuffer;
         //[pachData characterAtIndex: nSize-1] = DDF_UNIT_TERMINATOR;
         [pachData insertString: [NSString stringWithFormat: @"%c", DDF_UNIT_TERMINATOR] atIndex: nSize-1];
     } else {
-        if([self GetBinaryFormat] == DDFBinaryFormatNotBinary) {
+        if([self getBinaryFormat] == DDFBinaryFormatNotBinary) {
             memset([pachData cStringUsingEncoding: NSUTF8StringEncoding], ' ', nSize);
             memcpy([pachData cStringUsingEncoding: NSUTF8StringEncoding], pszValue, MIN(nValueLength,nSize));
         } else {
@@ -438,7 +438,7 @@ char *pachBuffer;
     return TRUE;
 }
 
--(int) FormatIntValue: (NSMutableString *) pachData
+-(int) formatIntValue: (NSMutableString *) pachData
       nBytesAvailable: (int) nBytesAvailable
           pnBytesUsed: (int *) pnBytesUsed
             nNewValue: (int) nNewValue {
@@ -451,7 +451,7 @@ char *pachBuffer;
         nSize = (int) strlen(szWork) + 1;
     } else {
         nSize = nFormatWidth;
-        if([self GetBinaryFormat] == DDFBinaryFormatNotBinary && (int) strlen(szWork) > nSize) {
+        if([self getBinaryFormat] == DDFBinaryFormatNotBinary && (int) strlen(szWork) > nSize) {
             return FALSE;
         }
     }
@@ -476,7 +476,7 @@ char *pachBuffer;
         GUInt32 nMask = 0xff;
         int i;
         
-        switch([self GetBinaryFormat]) {
+        switch([self getBinaryFormat]) {
             case DDFBinaryFormatNotBinary:
                 memset([pachData UTF8String], '0', nSize );
                 strncpy([[pachData substringFromIndex: nSize - strlen(szWork)] UTF8String], szWork,
@@ -512,7 +512,7 @@ char *pachBuffer;
     return TRUE;
 }
 
--(int) FormatFloatValue: (NSMutableString *) pachData
+-(int) formatFloatValue: (NSMutableString *) pachData
         nBytesAvailable: (int) nBytesAvailable
             pnBytesUsed: (int *)pnBytesUsed
              dfNewValue: (double) dfNewValue {
@@ -525,7 +525,7 @@ char *pachBuffer;
         nSize = (int)strlen(szWork) + 1;
     } else {
         nSize = nFormatWidth;
-        if([self GetBinaryFormat] == DDFBinaryFormatNotBinary && (int) strlen(szWork) > nSize) {
+        if([self getBinaryFormat] == DDFBinaryFormatNotBinary && (int) strlen(szWork) > nSize) {
             return FALSE;
         }
     }
@@ -547,7 +547,7 @@ char *pachBuffer;
         [pachData insertString: [NSString stringWithFormat: @"%c", DDF_UNIT_TERMINATOR] atIndex: nSize-1];
         //[pachData characterAtIndex: nSize-1] = DDF_UNIT_TERMINATOR;
     } else {
-        if([self GetBinaryFormat] == DDFBinaryFormatNotBinary) {
+        if([self getBinaryFormat] == DDFBinaryFormatNotBinary) {
             memset([pachData cStringUsingEncoding: NSUTF8StringEncoding], '0', nSize);
             strncpy([[pachData substringFromIndex: nSize - strlen(szWork)] cStringUsingEncoding: NSUTF8StringEncoding], szWork, strlen(szWork));
         } else {
@@ -558,7 +558,7 @@ char *pachBuffer;
     return TRUE;
 }
 
-- (int) GetDataLength: (NSString *) pachSourceData
+- (int) getDataLength: (NSString *) pachSourceData
             nMaxBytes: (int) nMaxBytes
       pnConsumedBytes: (int *) pnConsumedBytes {
     if(!bIsVariable) {
@@ -593,8 +593,8 @@ char *pachBuffer;
             bCheckFieldTerminator = FALSE;
         }
         
-        while(nLength < nMaxBytes && [pachSourceData  characterAtIndex: nLength] != chFormatDelimeter) {
-            if(bCheckFieldTerminator && [pachSourceData  characterAtIndex: nLength] == DDF_FIELD_TERMINATOR) {
+        while(nLength < nMaxBytes && [pachSourceData characterAtIndex: nLength] != chFormatDelimeter) {
+            if(bCheckFieldTerminator && [pachSourceData characterAtIndex: nLength] == DDF_FIELD_TERMINATOR) {
                 break;
             }
             nLength++;
@@ -611,7 +611,7 @@ char *pachBuffer;
     }
 }
 
--(int) GetDefaultValue: (NSMutableString *)pachData
+-(int) getDefaultValue: (NSMutableString *)pachData
        nBytesAvailable: (int) nBytesAvailable
            pnBytesUsed: (int *) pnBytesUsed {
     int nDefaultSize;
@@ -638,8 +638,8 @@ char *pachBuffer;
         [pachData insertString: [NSString stringWithFormat: @"%c", DDF_UNIT_TERMINATOR] atIndex:0];
         //pachData[0] = DDF_UNIT_TERMINATOR;
     } else {
-        if([self GetBinaryFormat] == DDFBinaryFormatNotBinary) {
-            if([self GetType] == DDFInt || [self GetType] == DDFFloat) {
+        if([self getBinaryFormat] == DDFBinaryFormatNotBinary) {
+            if([self getType] == DDFInt || [self getType] == DDFFloat) {
                 memset([pachData cStringUsingEncoding: NSUTF8StringEncoding], '0', nDefaultSize );
             } else {
                 memset([pachData cStringUsingEncoding: NSUTF8StringEncoding], ' ', nDefaultSize );

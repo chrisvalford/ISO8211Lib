@@ -40,7 +40,7 @@
  *
  *  - Returns: `FALSE` if the open fails or `TRUE` if it succeeds.  Errors messages are issued internally with CPLError().
  */
--(int) Open: (const char *) filePath bFailQuietly: (int) bFailQuietly; // = false
+-(int) open: (const char *) filePath bFailQuietly: (int) bFailQuietly; // = false
 
 /**
  * Create a new initialized DDFModule
@@ -49,13 +49,13 @@
  *
  *  - Returns: `FALSE` if the create fails or `TRUE` if it succeeds.  Errors messages are issued internally with CPLError().
  */
--(int) Create: (const char *) pszFilename;
+-(int) create: (const char *) pszFilename;
 
 /**
  * Close an ISO 8211 file and clean up
  *      Note that closing a file also destroys essentially all other module datastructures.
  */
--(void) Close;
+-(void) close;
 
 /**
  * Initialize this DDFModule
@@ -70,7 +70,7 @@
  *      - nSizeFieldPos: default 4
  *      - nSizeFieldTag:  default 4
  */
--(int) Initialize: (char) chInterchangeLevel //= '3',
+-(int) initialize: (char) chInterchangeLevel //= '3',
      chLeaderIden: (char) chLeaderIden //= 'L',
 chCodeExtensionIndicator: (char) chCodeExtensionIndicator //= 'E',
   chVersionNumber: (char) chVersionNumber //= '1',
@@ -89,7 +89,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  *
  *  - Parameter fp: The standard io file handle to write to.  ie. `stderr`.
  */
--(void) Dump: (FILE *) fp;
+-(void) dump: (FILE *) fp;
 
 /**
  * Read one record from the file, and return to the application.
@@ -99,7 +99,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  * module, and should not be deleted by the application.  The record is
  * only valid untill the next ReadRecord() at which point it is overwritten.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly, strong) DDFRecord *ReadRecord;
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) DDFRecord *readRecord;
 
 /**
  * Return to first record.
@@ -110,7 +110,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  * -1, a special value indicating that reading should return to the first
  * data record.  Otherwise it is an absolute byte offset in the file.
  */
--(void) Rewind: (long) nOffset; // = -1
+-(void) rewind: (long) nOffset; // = -1
 
 /**
  * Fetch the definition of the named field.
@@ -124,11 +124,11 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  * if none matching the name are found.  The return object remains owned by
  * the `DDFModule`, and should not be deleted by application code.
  */
--(DDFFieldDefinition *) FindFieldDefn: (NSString *) pszFieldName;
+-(DDFFieldDefinition *) findFieldDefn: (NSString *) pszFieldName;
 
 /** Fetch the number of defined fields. */
 
-@property (NS_NONATOMIC_IOSONLY, readonly) int GetFieldCount;
+@property (NS_NONATOMIC_IOSONLY, readonly) int getFieldCount;
 
 /**
  * Fetch a field definition by index.
@@ -136,7 +136,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  * - Parameter i: from 0 to GetFieldCount() - 1
  * - Returns: the returned field pointer or `NULL` if the index is out of range.
  */
--(DDFFieldDefinition *) GetField: (int) i;
+-(DDFFieldDefinition *) getField: (int) i;
 
 /**
  * Add new field definition.
@@ -147,10 +147,10 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  *
  * - Parameter poNewFDefn: Field definition to be added to the module.
  */
--(void) AddField: (DDFFieldDefinition *) poNewFDefn;
+-(void) addField: (DDFFieldDefinition *) poNewFDefn;
 
 // This is really just for internal use.
-@property (NS_NONATOMIC_IOSONLY, readonly) int GetFieldControlLength;
+@property (NS_NONATOMIC_IOSONLY, readonly) int getFieldControlLength;
 
 /**
  *   Add a clone record
@@ -159,17 +159,17 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
  *
  * - Parameter poRecord: The `DDFRecord` to clone
  */
--(void) AddCloneRecord: (DDFRecord *) poRecord;
+-(void) addCloneRecord: (DDFRecord *) poRecord;
 
 /**
  * Remove a cloned record
  *
  * - Parameter poRecord: Pointer to the clone to remove.
  */
--(void) RemoveCloneRecord: (DDFRecord *) poRecord;
+-(void) removeCloneRecord: (DDFRecord *) poRecord;
 
 // This is just for DDFRecord.
-@property (NS_NONATOMIC_IOSONLY, readonly) FILE *GetFP;
+@property (NS_NONATOMIC_IOSONLY, readonly) FILE *getFP;
 
 @end
 

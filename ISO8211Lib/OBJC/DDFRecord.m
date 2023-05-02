@@ -46,13 +46,13 @@
 }
 
 -(void) dealloc {
-    [self Clear];
+    [self clear];
     if( bIsClone ) {
-        [poModule RemoveCloneRecord: self];
+        [poModule removeCloneRecord: self];
     }
 }
 
--(void) Dump: (FILE *) fp {
+-(void) dump: (FILE *) fp {
     fprintf(fp, "DDFRecord:\n" );
     fprintf(fp, "    nReuseHeader = %d\n", nReuseHeader );
     fprintf(fp, "    nDataSize = %d\n", nDataSize );
@@ -60,30 +60,30 @@
              _sizeFieldLength, _sizeFieldPos, _sizeFieldTag );
 
     for(int i = 0; i < nFieldCount; i++) {
-        [paoFields[i] Dump: fp];
+        [paoFields[i] dump: fp];
     }
 }
 
--(int) GetDataSize {
+-(int) getDataSize {
     return nDataSize;
 }
 
--(const char *) GetData {
+-(const char *) getData {
     return pachData;
 }
 
--(DDFModule *) GetModule {
+-(DDFModule *) getModule {
     return poModule;
 }
 
--(int) ReadHeader {
+-(int) readHeader {
     // Clear any existing information.
-    [self Clear];
+    [self clear];
     
     // Read the 24 byte leader.
     char achLeader[nLeaderSize];
-    long nReadBytes = fread(achLeader,1,nLeaderSize, [poModule GetFP]);
-    if(nReadBytes == 0 && feof([poModule GetFP])) {
+    long nReadBytes = fread(achLeader,1,nLeaderSize, [poModule getFP]);
+    if(nReadBytes == 0 && feof([poModule getFP])) {
         return FALSE;
     } else if(nReadBytes != (int) nLeaderSize) {
         NSLog(@"Leader is short on DDF file.");
@@ -125,7 +125,7 @@
         nDataSize = _recLength - nLeaderSize;
         pachData = (char *) malloc(nDataSize);
         
-        if(fread(pachData, 1, nDataSize, [poModule GetFP]) != (size_t) nDataSize) {
+        if(fread(pachData, 1, nDataSize, [poModule getFP]) != (size_t) nDataSize) {
             NSLog(@"Data record is short on DDF file.");
             return FALSE;
         }
@@ -136,7 +136,7 @@
             nDataSize++;
             pachData = (char *) realloc(pachData,nDataSize);
             
-            if(fread(pachData + nDataSize - 1, 1, 1, [poModule GetFP]) != 1) {
+            if(fread(pachData + nDataSize - 1, 1, 1, [poModule getFP]) != 1) {
                 NSLog(@"Data record is short on DDF file.");
                 return FALSE;
             }
@@ -169,7 +169,7 @@
             nFieldPos = [DDFUtils DDFScanInt: pachData+nEntryOffset nMaxChars: _sizeFieldPos];
             
             // Find the corresponding field in the module directory.
-            DDFFieldDefinition *poFieldDefn = [poModule FindFieldDefn: @(szTag)];
+            DDFFieldDefinition *poFieldDefn = [poModule findFieldDefn: @(szTag)];
             
             if(poFieldDefn == NULL) {
                 NSLog(@"Undefined field '%s' encountered in data record.", szTag);
@@ -178,7 +178,7 @@
             
             // Create DDFField and assign the info.
             DDFField *newDDFField = [[DDFField alloc] init];
-            [newDDFField Initialize: poFieldDefn
+            [newDDFField initialize: poFieldDefn
                             pszData: [NSString stringWithCString: pachData + _fieldAreaStart + nFieldPos - nLeaderSize  encoding: NSUTF8StringEncoding]
                               nSize: nFieldLength];
             [paoFields addObject: newDDFField];
@@ -215,7 +215,7 @@
         // and keep on reading...
         do {
             // read an Entry:
-            if(nFieldEntryWidth != (int) fread(tmpBuf, 1, nFieldEntryWidth, [poModule GetFP])) {
+            if(nFieldEntryWidth != (int) fread(tmpBuf, 1, nFieldEntryWidth, [poModule getFP])) {
                 NSLog(@"Data record is short on DDF file.");
                 return FALSE;
             }
@@ -238,7 +238,7 @@
         
         // Now, rewind a little.  Only the TERMINATOR should have been read:
         int rewindSize = nFieldEntryWidth - 1;
-        FILE *fp = [poModule GetFP];
+        FILE *fp = [poModule getFP];
         long pos = ftell(fp) - rewindSize;
         fseek(fp, pos, SEEK_SET);
         nDataSize -= rewindSize;
@@ -251,7 +251,7 @@
             char *tmpBuf = (char*)malloc(nFieldLength);
             
             // read an Entry:
-            if(nFieldLength != (int) fread(tmpBuf, 1, nFieldLength, [poModule GetFP])) {
+            if(nFieldLength != (int) fread(tmpBuf, 1, nFieldLength, [poModule getFP])) {
                 NSLog(@"Data record is short on DDF file.");
                 return FALSE;
             }
@@ -284,7 +284,7 @@
                                    nMaxChars: _sizeFieldPos];
             
             // Find the corresponding field in the module directory.
-            DDFFieldDefinition *poFieldDefn = [poModule FindFieldDefn: @(szTag)];
+            DDFFieldDefinition *poFieldDefn = [poModule findFieldDefn: @(szTag)];
             
             if(poFieldDefn == NULL) {
                 NSLog(@"Undefined field '%s' encountered in data record.", szTag);
@@ -292,7 +292,7 @@
             }
             DDFField *newDDFField = [[DDFField alloc] init];
             // Assign info the DDFField.
-            [newDDFField Initialize: poFieldDefn
+            [newDDFField initialize: poFieldDefn
                             pszData: [NSString stringWithCString: pachData + _fieldAreaStart + nFieldPos - nLeaderSize encoding: NSUTF8StringEncoding]
                               nSize: nFieldLength];
             [paoFields addObject: newDDFField];
@@ -301,16 +301,16 @@
     }
 }
 
--(int) GetFieldCount {
+-(int) getFieldCount {
     return nFieldCount;
 }
 
--(DDFField *) FindField: (const char *) pszName
+-(DDFField *) findField: (const char *) pszName
             iFieldIndex: (int) iFieldIndex {  // = 0;
     for(int i = 0; i < nFieldCount; i++) {
         DDFField *field = paoFields[i];
-        DDFFieldDefinition *definition = [field GetFieldDefn];
-        NSString *foundName = [definition GetName];
+        DDFFieldDefinition *definition = [field getFieldDefn];
+        NSString *foundName = [definition getName];
         if([foundName isEqualToString: @(pszName)]) {
             if(iFieldIndex == 0) {
                 return paoFields[i];
@@ -322,7 +322,7 @@
     return NULL;
 }
 
--(DDFField *) GetField: (int) i {
+-(DDFField *) getField: (int) i {
     if(i < 0 || i >= nFieldCount) {
         return NULL;
     } else {
@@ -330,7 +330,7 @@
     }
 }
 
--(int) ResizeField: (DDFField *) poField
+-(int) resizeField: (DDFField *) poField
       nNewDataSize: (int) nNewDataSize {
     int iTarget, i;
     int nBytesToMove;
@@ -349,7 +349,7 @@
     }
     
     // Reallocate the data buffer accordingly.
-    int nBytesToAdd = nNewDataSize - [poField GetDataSize];
+    int nBytesToAdd = nNewDataSize - [poField getDataSize];
     const char *pachOldData = pachData;
     
     // Don't realloc things smaller ... we will cut off some data.
@@ -359,48 +359,48 @@
     nDataSize += nBytesToAdd;
     
     // How much data needs to be shifted up or down after this field?
-    nBytesToMove = nDataSize - ([[poField GetData] UTF8String]+[poField GetDataSize]-pachOldData+nBytesToAdd);
+    nBytesToMove = nDataSize - ([[poField getData] UTF8String]+[poField getDataSize]-pachOldData+nBytesToAdd);
     
     // Update fields to point into newly allocated buffer.
     for(i = 0; i < nFieldCount; i++) {
         DDFField *field = paoFields[i];
-        int nOffset = [[field GetData] UTF8String] - pachOldData;
-        [field Initialize: paoFields[i]
+        int nOffset = [[field getData] UTF8String] - pachOldData;
+        [field initialize: paoFields[i]
                   pszData: [NSString stringWithUTF8String: pachData + nOffset]];
     }
     
     // Shift the data beyond this field up or down as needed.
     if(nBytesToMove > 0) {
-        memmove((char *)[[poField GetData] UTF8String]+[poField GetDataSize]+nBytesToAdd,
-                (char *)[[poField GetData] UTF8String]+[poField GetDataSize],
+        memmove((char *)[[poField getData] UTF8String]+[poField getDataSize]+nBytesToAdd,
+                (char *)[[poField getData] UTF8String]+[poField getDataSize],
                 nBytesToMove);
     }
     
     // Update the target fields info.
-    [poField Initialize: [poField GetFieldDefn]
-                pszData: [poField GetData]
-                  nSize: [poField GetDataSize] + nBytesToAdd];
+    [poField initialize: [poField getFieldDefn]
+                pszData: [poField getData]
+                  nSize: [poField getDataSize] + nBytesToAdd];
 
     // Shift all following fields down, and update their data locations.
     if(nBytesToAdd < 0) {
         for(i = iTarget+1; i < nFieldCount; i++) {
             DDFField *field = paoFields[i];
-            NSString *pszOldDataLocation = [field GetData];
-            [paoFields[i] Initialize: field
+            NSString *pszOldDataLocation = [field getData];
+            [paoFields[i] initialize: field
                              pszData: [pszOldDataLocation substringFromIndex: nBytesToAdd]];
         }
     } else {
         for(i = nFieldCount-1; i > iTarget; i--) {
             DDFField *field = paoFields[i];
-            NSString *pszOldDataLocation = [field GetData];
-            [paoFields[i] Initialize: paoFields[i]
+            NSString *pszOldDataLocation = [field getData];
+            [paoFields[i] initialize: paoFields[i]
                              pszData: [pszOldDataLocation substringFromIndex: nBytesToAdd]];
         }
     }
     return TRUE;
 }
 
--(int) DeleteField: (DDFField *) poTarget {
+-(int) deleteField: (DDFField *) poTarget {
     int iTarget, i;
     
     // Find which field we are to delete.
@@ -416,7 +416,7 @@
     // Change the target fields data size to zero.  This takes care
     // of repacking the data array, and updating all the following
     // field data pointers.
-    [self ResizeField: poTarget nNewDataSize: 0];
+    [self resizeField: poTarget nNewDataSize: 0];
     
     // remove the target field, moving down all the other fields
     // one step in the field list.
@@ -427,7 +427,7 @@
     return TRUE;
 }
 
--(DDFField *) AddField: (DDFFieldDefinition *) poDefn {
+-(DDFField *) addField: (DDFFieldDefinition *) poDefn {
 //    // Reallocate the fields array larger by one, and initialize the new field.
 //    DDFField *paoNewFields;
 //
@@ -451,35 +451,35 @@
         
         // Create a new DDFField with this definition
         DDFField *newField = [[DDFField alloc] init];
-        [newField Initialize: poDefn pszData: [NSString stringWithCString: [self GetData] encoding: NSUTF8StringEncoding] nSize:0];
+        [newField initialize: poDefn pszData: [NSString stringWithCString: [self getData] encoding: NSUTF8StringEncoding] nSize:0];
         [paoFields addObject: newField];
         nFieldCount++;
 //    }
     
     // Initialize field.
-    [self CreateDefaultFieldInstance: newField iIndexWithinField: 0];
+    [self createDefaultFieldInstance: newField iIndexWithinField: 0];
     return newField;
 }
 
--(int) CreateDefaultFieldInstance: (DDFField *)poField
+-(int) createDefaultFieldInstance: (DDFField *)poField
                iIndexWithinField : (int) iIndexWithinField {
     int nRawSize, nSuccess;
     char *pachRawData;
     
-    pachRawData = [[[poField GetFieldDefn] GetDefaultValue: &nRawSize] cStringUsingEncoding: NSUTF8StringEncoding];
+    pachRawData = [[[poField getFieldDefn] getDefaultValue: &nRawSize] cStringUsingEncoding: NSUTF8StringEncoding];
     if(pachRawData == NULL) {
         return FALSE;
     }
-    nSuccess = [self SetFieldRaw: poField iIndexWithinField: iIndexWithinField pachRawData: pachRawData nRawDataSize: nRawSize];
+    nSuccess = [self setFieldRaw: poField iIndexWithinField: iIndexWithinField pachRawData: pachRawData nRawDataSize: nRawSize];
     pachRawData = NULL;
     return nSuccess;
 }
 
--(int) SetFieldRaw: (DDFField *)poField
+-(int) setFieldRaw: (DDFField *)poField
  iIndexWithinField: (int) iIndexWithinField
        pachRawData: (const char *)pachRawData
       nRawDataSize: (int) nRawDataSize {
-    int         iTarget, nRepeatCount;
+    int iTarget, nRepeatCount;
     
     //Find which field we are to update.
     for(iTarget = 0; iTarget < nFieldCount; iTarget++) {
@@ -491,7 +491,7 @@
     if(iTarget == nFieldCount) {
         return FALSE;
     }
-    nRepeatCount = [poField GetRepeatCount];
+    nRepeatCount = [poField getRepeatCount];
     
     if(iIndexWithinField < 0 || iIndexWithinField > nRepeatCount) {
         return FALSE;
@@ -499,21 +499,21 @@
     
     // Are we adding an instance? This is easier and different
     // than replacing an existing instance.
-    if(iIndexWithinField == nRepeatCount || ![[poField GetFieldDefn] IsRepeating]) {
-        char    *pachFieldData;
-        int     nOldSize;
+    if(iIndexWithinField == nRepeatCount || ![[poField getFieldDefn] isRepeating]) {
+        char *pachFieldData;
+        int nOldSize;
         
-        if(![[poField GetFieldDefn] IsRepeating] && iIndexWithinField != 0) {
+        if(![[poField getFieldDefn] isRepeating] && iIndexWithinField != 0) {
             return FALSE;
         }
-        nOldSize = [poField GetDataSize];
+        nOldSize = [poField getDataSize];
         if(nOldSize == 0) {
             nOldSize++; // for added DDF_FIELD_TERMINATOR.
         }
-        if(![self ResizeField:poField nNewDataSize: nOldSize + nRawDataSize]) {
+        if(![self resizeField:poField nNewDataSize: nOldSize + nRawDataSize]) {
             return FALSE;
         }
-        pachFieldData = [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding];
+        pachFieldData = [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding];
         memcpy(pachFieldData + nOldSize - 1, pachRawData, nRawDataSize);
         pachFieldData[nOldSize+nRawDataSize-1] = DDF_FIELD_TERMINATOR;
         return TRUE;
@@ -526,31 +526,31 @@
     
     // We special case this to avoid alot of warnings when initializing
     // the field the first time.
-    if([poField GetDataSize] == 0) {
-        pachWrkData = [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding];
+    if([poField getDataSize] == 0) {
+        pachWrkData = [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding];
         nInstanceSize = 0;
     } else {
-        pachWrkData = [[poField GetInstanceData: iIndexWithinField
+        pachWrkData = [[poField getInstanceData: iIndexWithinField
                                         pnSize:  &nInstanceSize] cStringUsingEncoding: NSUTF8StringEncoding];
     }
     
     //Create new image of this whole field.
-    int nNewFieldSize = [poField GetDataSize] - nInstanceSize + nRawDataSize;
+    int nNewFieldSize = [poField getDataSize] - nInstanceSize + nRawDataSize;
     char *pachNewImage = (char *) malloc(nNewFieldSize);
-    int nPreBytes = pachWrkData - [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding];
-    int nPostBytes = [poField GetDataSize] - nPreBytes - nInstanceSize;
-    memcpy(pachNewImage, [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding], nPreBytes);
-    memcpy(pachNewImage + nPreBytes + nRawDataSize, [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding] + nPreBytes + nInstanceSize, nPostBytes);
+    int nPreBytes = pachWrkData - [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding];
+    int nPostBytes = [poField getDataSize] - nPreBytes - nInstanceSize;
+    memcpy(pachNewImage, [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding], nPreBytes);
+    memcpy(pachNewImage + nPreBytes + nRawDataSize, [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding] + nPreBytes + nInstanceSize, nPostBytes);
     memcpy(pachNewImage + nPreBytes, pachRawData, nRawDataSize);
     
     //Resize the field to the desired new size.
-    [self ResizeField: poField nNewDataSize: nNewFieldSize];
-    memcpy((void *) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding], pachNewImage, nNewFieldSize);
+    [self resizeField: poField nNewDataSize: nNewFieldSize];
+    memcpy((void *) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding], pachNewImage, nNewFieldSize);
     pachNewImage = NULL;
     return TRUE;
 }
 
--(int) UpdateFieldRaw: (DDFField *) poField
+-(int) updateFieldRaw: (DDFField *) poField
     iIndexWithinField: (int) iIndexWithinField
          nStartOffset: (int) nStartOffset
              nOldSize: (int) nOldSize
@@ -567,17 +567,17 @@
     if(iTarget == nFieldCount) {
         return FALSE;
     }
-    nRepeatCount = [poField GetRepeatCount];
+    nRepeatCount = [poField getRepeatCount];
     if(iIndexWithinField < 0 || iIndexWithinField >= nRepeatCount) {
         return FALSE;
     }
     
     // Figure out how much pre and post data there is.
     int nInstanceSize;
-    char *pachWrkData = [[poField GetInstanceData: iIndexWithinField
+    char *pachWrkData = [[poField getInstanceData: iIndexWithinField
                                                    pnSize: &nInstanceSize] cStringUsingEncoding: NSUTF8StringEncoding];
-    int nPreBytes = pachWrkData - [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding] + nStartOffset;
-    int nPostBytes = [poField GetDataSize] - nPreBytes - nOldSize;
+    int nPreBytes = pachWrkData - [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding] + nStartOffset;
+    int nPostBytes = [poField getDataSize] - nPreBytes - nOldSize;
     
     // If we aren't changing the size, just copy over the existing data.
     if(nOldSize == nRawDataSize) {
@@ -587,29 +587,29 @@
     
     // If we are shrinking, move in the new data, and shuffle down the old before resizing.
     if(nRawDataSize < nOldSize) {
-        memcpy(((char*) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes, pachRawData, nRawDataSize);
-        memmove(((char *) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nRawDataSize,
-                ((char *) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nOldSize, nPostBytes);
+        memcpy(((char*) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes, pachRawData, nRawDataSize);
+        memmove(((char *) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nRawDataSize,
+                ((char *) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nOldSize, nPostBytes);
     }
     
     // Resize the whole buffer.
-    if(![self ResizeField: poField
-             nNewDataSize: [poField GetDataSize] - nOldSize + nRawDataSize]) {
+    if(![self resizeField: poField
+             nNewDataSize: [poField getDataSize] - nOldSize + nRawDataSize]) {
         return FALSE;
     }
     
     // If we growing the buffer, shuffle up the post data, and move in our new values.
     if(nRawDataSize >= nOldSize) {
-        memmove(((char *) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nRawDataSize,
-                ((char *) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nOldSize,
+        memmove(((char *) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nRawDataSize,
+                ((char *) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes + nOldSize,
                 nPostBytes);
-        memcpy(((char*) [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes,
+        memcpy(((char*) [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding]) + nPreBytes,
                pachRawData, nRawDataSize);
     }
     return TRUE;
 }
 
--(int) GetIntSubfield: (const char *) pszField
+-(int) getIntSubfield: (const char *) pszField
           iFieldIndex: (int) iFieldIndex
           pszSubfield: (const char *) pszSubfield
        iSubfieldIndex: (int) iSubfieldIndex
@@ -623,30 +623,30 @@
     *pnSuccess = FALSE;
     
     // Fetch the field. If this fails, return zero.
-    DDFField *poField = [self FindField: pszField iFieldIndex: iFieldIndex];
+    DDFField *poField = [self findField: pszField iFieldIndex: iFieldIndex];
     if(poField == NULL) {
         return 0;
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField GetFieldDefn] FindSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return 0;
     }
     
     // Get a pointer to the data.
     int nBytesRemaining;
-    const char *pachData = [[poField GetSubfieldData: poSFDefn
+    const char *pachData = [[poField getSubfieldData: poSFDefn
                                          pnMaxBytes: &nBytesRemaining
                                      iSubfieldIndex: iSubfieldIndex] cStringUsingEncoding: NSUTF8StringEncoding];
     // Return the extracted value.
     *pnSuccess = TRUE;
-    return([poSFDefn ExtractIntData: [NSString stringWithCString: pachData encoding: NSUTF8StringEncoding]
+    return([poSFDefn extractIntData: [NSString stringWithCString: pachData encoding: NSUTF8StringEncoding]
                           nMaxBytes: nBytesRemaining
                     pnConsumedBytes: NULL]);
 }
 
--(double) GetFloatSubfield: (const char *) pszField
+-(double) getFloatSubfield: (const char *) pszField
                iFieldIndex: (int) iFieldIndex
                pszSubfield: (const char *) pszSubfield
             iSubfieldIndex: (int) iSubfieldIndex
@@ -654,36 +654,36 @@
     
     int nDummyErr;
     
-    if(pnSuccess == NULL)
+    if(pnSuccess == NULL) {
         pnSuccess = &nDummyErr;
-    
+    }
     *pnSuccess = FALSE;
     
     // Fetch the field. If this fails, return zero.
-    DDFField *poField = [self FindField: pszField iFieldIndex: iFieldIndex];
+    DDFField *poField = [self findField: pszField iFieldIndex: iFieldIndex];
     if(poField == NULL) {
         return 0;
     }
     
     // Get the subfield definition.
-    DDFSubfieldDefinition *poSFDefn = [[poField GetFieldDefn] FindSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return 0;
     }
     
     //Get a pointer to the data.
     int nBytesRemaining;
-    const char *pachData = [[poField GetSubfieldData: poSFDefn
+    const char *pachData = [[poField getSubfieldData: poSFDefn
                                          pnMaxBytes: &nBytesRemaining
                                      iSubfieldIndex: iSubfieldIndex] cStringUsingEncoding: NSUTF8StringEncoding];
     // Return the extracted value.
     *pnSuccess = TRUE;
-    return([poSFDefn ExtractFloatData: [NSString stringWithCString: pachData encoding: NSUTF8StringEncoding]
+    return([poSFDefn extractFloatData: [NSString stringWithCString: pachData encoding: NSUTF8StringEncoding]
                             nMaxBytes: nBytesRemaining
                       pnConsumedBytes: NULL]);
 }
 
--(NSString *) GetStringSubfield: (const char *) pszField
+-(NSString *) getStringSubfield: (const char *) pszField
                       iFieldIndex: (int) iFieldIndex
                       pszSubfield: (const char *) pszSubfield
                    iSubfieldIndex: (int) iSubfieldIndex
@@ -696,51 +696,51 @@
     *pnSuccess = FALSE;
     
     // Fetch the field. If this fails, return zero.
-    DDFField *poField = [self FindField: pszField iFieldIndex: iFieldIndex];
+    DDFField *poField = [self findField: pszField iFieldIndex: iFieldIndex];
     if(poField == NULL) {
         return NULL;
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField GetFieldDefn] FindSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return NULL;
     }
     
     // Get a pointer to the data.
     int nBytesRemaining;
-    NSString *pachData = [poField GetSubfieldData: poSFDefn
+    NSString *pachData = [poField getSubfieldData: poSFDefn
                                          pnMaxBytes: &nBytesRemaining
                                      iSubfieldIndex: iSubfieldIndex];
     
     // Return the extracted value.
     *pnSuccess = TRUE;
-    return([poSFDefn ExtractStringData: pachData
+    return([poSFDefn extractStringData: pachData
                              nMaxBytes: nBytesRemaining
                        pnConsumedBytes: NULL]);
 }
 
--(int) SetIntSubfield: (const char *) pszField
+-(int) setIntSubfield: (const char *) pszField
           iFieldIndex: (int) iFieldIndex
           pszSubfield: (const char *) pszSubfield
        iSubfieldIndex: (int) iSubfieldIndex
             nNewValue: (int) nNewValue {
     
     // Fetch the field. If this fails, return zero.
-    DDFField *poField = [self FindField: pszField iFieldIndex: iFieldIndex];
+    DDFField *poField = [self findField: pszField iFieldIndex: iFieldIndex];
     if(poField == NULL) {
         return FALSE;
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField GetFieldDefn] FindSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return FALSE;
     }
     
     // How long will the formatted value be?
     int nFormattedLen;
-    if(![poSFDefn FormatIntValue: NULL
+    if(![poSFDefn formatIntValue: NULL
                  nBytesAvailable: 0
                      pnBytesUsed: &nFormattedLen
                        nNewValue: nNewValue]) {
@@ -749,30 +749,30 @@
     
     // Get a pointer to the data.
     int nMaxBytes;
-    NSString *pachSubfieldData = [poField GetSubfieldData: poSFDefn
+    NSString *pachSubfieldData = [poField getSubfieldData: poSFDefn
                                                    pnMaxBytes: &nMaxBytes
                                                iSubfieldIndex: iSubfieldIndex];
     
     // Add new instance if we have run out of data.
     assert([pachSubfieldData length] > 1);
     if(nMaxBytes == 0 || (nMaxBytes == 1 && [pachSubfieldData characterAtIndex: 0] == DDF_FIELD_TERMINATOR)) {
-        [self CreateDefaultFieldInstance: poField
+        [self createDefaultFieldInstance: poField
                        iIndexWithinField: iSubfieldIndex];
         
         // Refetch.
-        pachSubfieldData = [poField GetSubfieldData: poSFDefn
+        pachSubfieldData = [poField getSubfieldData: poSFDefn
                       pnMaxBytes: &nMaxBytes
                   iSubfieldIndex: iSubfieldIndex];
     }
     
     // If the new length matches the existing length, just overlay and return.
     int nExistingLength;
-    [poSFDefn GetDataLength: pachSubfieldData
+    [poSFDefn getDataLength: pachSubfieldData
                   nMaxBytes: nMaxBytes
             pnConsumedBytes: &nExistingLength];
     
     if(nExistingLength == nFormattedLen) {
-        return [poSFDefn FormatIntValue: pachSubfieldData
+        return [poSFDefn formatIntValue: pachSubfieldData
                         nBytesAvailable: nFormattedLen
                             pnBytesUsed: NULL
                               nNewValue: nNewValue];
@@ -780,16 +780,16 @@
     
     // We will need to resize the raw data.
     int nInstanceSize;
-    const char *pachFieldInstData = [[poField GetInstanceData: iFieldIndex
+    const char *pachFieldInstData = [[poField getInstanceData: iFieldIndex
                                                       pnSize: &nInstanceSize] cStringUsingEncoding: NSUTF8StringEncoding];
     int nStartOffset = [pachSubfieldData cStringUsingEncoding: NSUTF8StringEncoding] - pachFieldInstData;
     char *pachNewData = (char *) malloc(nFormattedLen);
-    [poSFDefn FormatIntValue: [NSMutableString stringWithCString: pachNewData encoding: NSUTF8StringEncoding]
+    [poSFDefn formatIntValue: [NSMutableString stringWithCString: pachNewData encoding: NSUTF8StringEncoding]
              nBytesAvailable: nFormattedLen
                  pnBytesUsed: NULL
                    nNewValue: nNewValue];
     
-    int nSuccess = [self UpdateFieldRaw: poField
+    int nSuccess = [self updateFieldRaw: poField
                       iIndexWithinField: iFieldIndex
                            nStartOffset: nStartOffset
                                nOldSize: nExistingLength
@@ -799,7 +799,7 @@
     return nSuccess;
 }
 
--(int) SetStringSubfield: (const char *) pszField
+-(int) setStringSubfield: (const char *) pszField
              iFieldIndex: (int) iFieldIndex
              pszSubfield: (const char *) pszSubfield
           iSubfieldIndex: (int) iSubfieldIndex
@@ -807,20 +807,20 @@
             nValueLength: (int) nValueLength {
     
     // Fetch the field. If this fails, return zero.
-    DDFField *poField = [self FindField: pszField iFieldIndex: iFieldIndex];
+    DDFField *poField = [self findField: pszField iFieldIndex: iFieldIndex];
     if(poField == NULL) {
         return FALSE;
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField GetFieldDefn] FindSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return FALSE;
     }
     
     // How long will the formatted value be?
     int nFormattedLen;
-    if(![poSFDefn FormatStringValue: NULL
+    if(![poSFDefn formatStringValue: NULL
                     nBytesAvailable: 0
                         pnBytesUsed: &nFormattedLen
                            pszValue: pszValue
@@ -830,28 +830,28 @@
     
     // Get a pointer to the data.
     int nMaxBytes;
-    NSString *pachSubfieldData = [poField GetSubfieldData: poSFDefn
+    NSString *pachSubfieldData = [poField getSubfieldData: poSFDefn
                                                    pnMaxBytes: &nMaxBytes
                                                iSubfieldIndex: iSubfieldIndex];
     
     //Add new instance if we have run out of data.
     assert([pachSubfieldData length] > 1);
     if(nMaxBytes == 0 || (nMaxBytes == 1 && [pachSubfieldData characterAtIndex: 0] == DDF_FIELD_TERMINATOR)) {
-        [self CreateDefaultFieldInstance: poField iIndexWithinField: iSubfieldIndex];
+        [self createDefaultFieldInstance: poField iIndexWithinField: iSubfieldIndex];
         
         // Refetch.
-        pachSubfieldData = [poField GetSubfieldData: poSFDefn
+        pachSubfieldData = [poField getSubfieldData: poSFDefn
                                                  pnMaxBytes: &nMaxBytes
                                              iSubfieldIndex: iSubfieldIndex];
     }
     
     // If the new length matches the existing length, just overlay and return.
     int nExistingLength;
-    [poSFDefn GetDataLength: pachSubfieldData
+    [poSFDefn getDataLength: pachSubfieldData
                   nMaxBytes: nMaxBytes
             pnConsumedBytes: &nExistingLength];
     if(nExistingLength == nFormattedLen) {
-        return [poSFDefn FormatStringValue: pachSubfieldData
+        return [poSFDefn formatStringValue: pachSubfieldData
                            nBytesAvailable: nFormattedLen
                                pnBytesUsed: NULL
                                   pszValue: pszValue
@@ -860,17 +860,17 @@
     
     // We will need to resize the raw data.
     int nInstanceSize;
-    const char *pachFieldInstData = [[poField GetInstanceData: iFieldIndex
+    const char *pachFieldInstData = [[poField getInstanceData: iFieldIndex
                                                       pnSize: &nInstanceSize] cStringUsingEncoding: NSUTF8StringEncoding];
     int nStartOffset = [pachSubfieldData cStringUsingEncoding: NSUTF8StringEncoding] - pachFieldInstData;
     char *pachNewData = (char *) malloc(nFormattedLen);
-    [poSFDefn FormatStringValue: [NSMutableString stringWithCString: pachNewData encoding: NSUTF8StringEncoding]
+    [poSFDefn formatStringValue: [NSMutableString stringWithCString: pachNewData encoding: NSUTF8StringEncoding]
                 nBytesAvailable: nFormattedLen
                     pnBytesUsed: NULL
                        pszValue: pszValue
                    nValueLength: nValueLength];
     
-    int nSuccess = [self UpdateFieldRaw: poField
+    int nSuccess = [self updateFieldRaw: poField
                       iIndexWithinField: iFieldIndex
                            nStartOffset: nStartOffset
                                nOldSize: nExistingLength
@@ -880,27 +880,27 @@
     return nSuccess;
 }
 
--(int) SetFloatSubfield: (const char *) pszField
+-(int) setFloatSubfield: (const char *) pszField
             iFieldIndex: (int) iFieldIndex
             pszSubfield: (const char *) pszSubfield
          iSubfieldIndex: (int) iSubfieldIndex
              dfNewValue: (double) dfNewValue {
     
     // Fetch the field. If this fails, return zero.
-    DDFField *poField = [self FindField: pszField iFieldIndex: iFieldIndex];
+    DDFField *poField = [self findField: pszField iFieldIndex: iFieldIndex];
     if(poField == NULL) {
         return FALSE;
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField GetFieldDefn] FindSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return FALSE;
     }
     
     // How long will the formatted value be?
     int nFormattedLen;
-    if(![poSFDefn FormatFloatValue: NULL
+    if(![poSFDefn formatFloatValue: NULL
                    nBytesAvailable: 0
                        pnBytesUsed: &nFormattedLen
                         dfNewValue: dfNewValue]) {
@@ -909,26 +909,26 @@
     
     // Get a pointer to the data.
     int nMaxBytes;
-    NSString *pachSubfieldData = [poField GetSubfieldData: poSFDefn
+    NSString *pachSubfieldData = [poField getSubfieldData: poSFDefn
                                                     pnMaxBytes: &nMaxBytes
                                                 iSubfieldIndex: iSubfieldIndex];
     // Add new instance if we have run out of data.
     if(nMaxBytes == 0 || (nMaxBytes == 1 && [pachSubfieldData characterAtIndex: 0] == DDF_FIELD_TERMINATOR)) {
-        [self CreateDefaultFieldInstance: poField iIndexWithinField: iSubfieldIndex];
+        [self createDefaultFieldInstance: poField iIndexWithinField: iSubfieldIndex];
         // Refetch.
-        pachSubfieldData = [poField GetSubfieldData: poSFDefn
+        pachSubfieldData = [poField getSubfieldData: poSFDefn
                                                   pnMaxBytes: &nMaxBytes
                                               iSubfieldIndex: iSubfieldIndex];
     }
     
     // If the new length matches the existing length, just overlay and return.
     int nExistingLength;
-    [poSFDefn GetDataLength: pachSubfieldData
+    [poSFDefn getDataLength: pachSubfieldData
                   nMaxBytes: nMaxBytes
             pnConsumedBytes: &nExistingLength];
     
     if(nExistingLength == nFormattedLen) {
-        return [poSFDefn FormatFloatValue: pachSubfieldData
+        return [poSFDefn formatFloatValue: pachSubfieldData
                           nBytesAvailable: nFormattedLen
                               pnBytesUsed: NULL
                                dfNewValue: dfNewValue];
@@ -936,17 +936,17 @@
     
     // We will need to resize the raw data.
     int nInstanceSize;
-    NSString *pachFieldInstData = [poField GetInstanceData: iFieldIndex
+    NSString *pachFieldInstData = [poField getInstanceData: iFieldIndex
                                                       pnSize: &nInstanceSize];
     int nStartOffset = (int) ([pachSubfieldData  cStringUsingEncoding: NSUTF8StringEncoding] - [pachFieldInstData cStringUsingEncoding: NSUTF8StringEncoding]);
     char *pachNewData = (char *) malloc(nFormattedLen);
     
-    [poSFDefn FormatFloatValue: [NSMutableString stringWithCString: pachNewData encoding: NSUTF8StringEncoding]
+    [poSFDefn formatFloatValue: [NSMutableString stringWithCString: pachNewData encoding: NSUTF8StringEncoding]
                nBytesAvailable: nFormattedLen
                    pnBytesUsed: NULL
                     dfNewValue: dfNewValue];
     
-    int nSuccess = [self UpdateFieldRaw: poField
+    int nSuccess = [self updateFieldRaw: poField
        iIndexWithinField: iFieldIndex
             nStartOffset: nStartOffset
                 nOldSize: nExistingLength
@@ -956,7 +956,7 @@
     return nSuccess;
 }
 
--(int) Write {
+-(int) write {
     if(![self ResetDirectory]) {
         return FALSE;
     }
@@ -980,18 +980,18 @@
     
     // notdef: lots of stuff missing
     // Write the leader.
-    fwrite(szLeader, nLeaderSize, 1, [poModule GetFP]);
+    fwrite(szLeader, nLeaderSize, 1, [poModule getFP]);
     
     // Write the remainder of the record.
-    fwrite(pachData, nDataSize, 1, [poModule GetFP]);
+    fwrite(pachData, nDataSize, 1, [poModule getFP]);
     return TRUE;
 }
 
--(int) Read {
+-(int) read {
     // Redefine the record on the basis of the header if needed.
     // As a side effect this will read the data for the record as well.
     if(!nReuseHeader) {
-        return([self ReadHeader]);
+        return([self readHeader]);
     }
     
     // Otherwise we read just the data and carefully overlay it on the
@@ -999,7 +999,7 @@
     size_t nReadBytes = fread(pachData + nFieldOffset, 1,
                        nDataSize - nFieldOffset,
                        [poModule GetFP]);
-    if(nReadBytes != (size_t) (nDataSize - nFieldOffset) && nReadBytes == 0 && feof([poModule GetFP])) {
+    if(nReadBytes != (size_t) (nDataSize - nFieldOffset) && nReadBytes == 0 && feof([poModule getFP])) {
         return FALSE;
     } else if(nReadBytes != (size_t) (nDataSize - nFieldOffset)) {
         NSLog(@"Data record is short on DDF file.\n");
@@ -1011,7 +1011,7 @@
     return TRUE;
 }
 
--(void) Clear {
+-(void) clear {
 //    if(paoFields != NULL) {
 //        paoFields = NULL;
 //    }
@@ -1023,7 +1023,7 @@
     nReuseHeader = FALSE;
 }
 
--(int) ResetDirectory {
+-(int) resetDirectory {
     int iField;
     // Eventually we should try to optimize the size of offset and field length.
     // For now we will use 5 for each which is pretty big.
@@ -1045,11 +1045,11 @@
                nNewDataSize - nDirSize);
         
         for(iField = 0; iField < nFieldCount; iField++) {
-            DDFField *poField = [self GetField: iField];
-            int nOffset = [[poField GetData] cStringUsingEncoding: NSUTF8StringEncoding] - pachData - nFieldOffset + nDirSize;
-            [poField Initialize: [poField GetFieldDefn]
+            DDFField *poField = [self getField: iField];
+            int nOffset = [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding] - pachData - nFieldOffset + nDirSize;
+            [poField initialize: [poField getFieldDefn]
                         pszData: [NSString stringWithUTF8String: pachNewData + nOffset]
-                          nSize: [poField GetDataSize]];
+                          nSize: [poField getDataSize]];
         }
         
         pachData = nil;
@@ -1061,20 +1061,20 @@
     
     // Now set each directory entry.
     for(iField = 0; iField < nFieldCount; iField++) {
-        DDFField *poField = [self GetField: iField];
-        DDFFieldDefinition *poDefn = [poField GetFieldDefn];
+        DDFField *poField = [self getField: iField];
+        DDFFieldDefinition *poDefn = [poField getFieldDefn];
         char szFormat[128];
         
         sprintf(szFormat, "%%%ds%%0%dd%%0%dd", _sizeFieldTag, _sizeFieldLength, _sizeFieldPos);
         sprintf(pachData + nEntrySize * iField, szFormat,
-                [poDefn GetName], [poField GetDataSize],
-                [[poField GetData] UTF8String] - pachData - nFieldOffset);
+                [poDefn getName], [poField getDataSize],
+                [[poField getData] UTF8String] - pachData - nFieldOffset);
     }
     pachData[nEntrySize * nFieldCount] = DDF_FIELD_TERMINATOR;
     return TRUE;
 }
 
--(DDFRecord *) Clone {
+-(DDFRecord *) clone {
     DDFRecord   *poNR;
 
     poNR = [[DDFRecord alloc] init: poModule];
@@ -1090,12 +1090,12 @@
     for( int i = 0; i < nFieldCount; i++ ) {
         int     nOffset;
         DDFField *field = paoFields[i];
-        nOffset = ([[field GetData] UTF8String] - pachData);
+        nOffset = ([[field getData] UTF8String] - pachData);
 
         DDFField *recordField = poNR->paoFields[i];
-        [recordField Initialize: [field GetFieldDefn]
+        [recordField Initialize: [field getFieldDefn]
                         pszData: [NSString stringWithUTF8String: poNR->pachData + nOffset]
-                          nSize: [field GetDataSize]];
+                          nSize: [field getDataSize]];
         poNR->paoFields[i] = recordField;
 
 //        [poNR->paoFields[i] Initialize: [field GetFieldDefn]
@@ -1113,12 +1113,12 @@
     }
     
     poNR->bIsClone = TRUE;
-    [poModule AddCloneRecord: poNR];
+    [poModule addCloneRecord: poNR];
 
     return poNR;
 }
 
--(DDFRecord *) CloneOn: (DDFModule *) poTargetModule {
+-(DDFRecord *) cloneOn: (DDFModule *) poTargetModule {
 /* -------------------------------------------------------------------- */
 /*      Verify that all fields have a corresponding field definition    */
 /*      on the target module.                                           */
@@ -1127,9 +1127,9 @@
 
     for( i = 0; i < nFieldCount; i++ )
     {
-        DDFFieldDefinition    *poDefn = [paoFields[i] GetFieldDefn];
+        DDFFieldDefinition *poDefn = [paoFields[i] getFieldDefn];
 
-        if( [poTargetModule FindFieldDefn: [poDefn GetName]] == NULL )
+        if( [poTargetModule findFieldDefn: [poDefn getName]] == NULL )
             return NULL;
     }
 
@@ -1138,26 +1138,26 @@
 /* -------------------------------------------------------------------- */
     DDFRecord   *poClone;
 
-    poClone = [self Clone];
+    poClone = [self clone];
 
 /* -------------------------------------------------------------------- */
 /*      Update all internal information to reference other module.      */
 /* -------------------------------------------------------------------- */
     for( i = 0; i < nFieldCount; i++ )
     {
-        DDFField        *poField = poClone->paoFields[i];
-        DDFFieldDefinition    *poDefn;
+        DDFField *poField = poClone->paoFields[i];
+        DDFFieldDefinition *poDefn;
 
-        poDefn = [poTargetModule FindFieldDefn: [[poField GetFieldDefn] GetName]];
+        poDefn = [poTargetModule findFieldDefn: [[poField getFieldDefn] getName]];
         
-        [poField Initialize: poDefn
-                    pszData: [poField GetData]
-                      nSize: [poField GetDataSize]];
+        [poField initialize: poDefn
+                    pszData: [poField getData]
+                      nSize: [poField getDataSize]];
     }
 
-    [poModule RemoveCloneRecord: poClone];
+    [poModule removeCloneRecord: poClone];
     poClone->poModule = poTargetModule;
-    [poTargetModule AddCloneRecord: poClone];
+    [poTargetModule addCloneRecord: poClone];
 
     return poClone;
 }

@@ -15,7 +15,7 @@ DDFFieldDefinition *poDefn;
 long nDataSize;
 NSString *pachData;
 
--(void) Initialize: (DDFFieldDefinition *) poDefnIn
+-(void) initialize: (DDFFieldDefinition *) poDefnIn
            pszData: (NSString *) pachDataIn
              nSize: (long) nDataSizeIn {
     pachData = pachDataIn;
@@ -23,32 +23,32 @@ NSString *pachData;
     poDefn = poDefnIn;
 }
 
-- (void) Initialize: (DDFField *) poField
+- (void) initialize: (DDFField *) poField
             pszData: (NSString *) pachDataIn {
-    DDFFieldDefinition * poDefn = [poField GetFieldDefn];
-    long dataSize = [poField GetDataSize];
-    [self Initialize: poDefn
+    DDFFieldDefinition * poDefn = [poField getFieldDefn];
+    long dataSize = [poField getDataSize];
+    [self initialize: poDefn
              pszData: pachDataIn
                nSize: dataSize];
 }
 
--(NSString *) GetData {
+-(NSString *) getData {
     return pachData;
 }
 
--(long) GetDataSize {
+-(long) getDataSize {
     return nDataSize;
 }
 
--(int) GetRepeatCount {
-    if(![poDefn IsRepeating]) {
+-(int) getRepeatCount {
+    if(![poDefn isRepeating]) {
         return 1;
     }
 
 // The occurance count depends on how many copies of this
 // field's list of subfields can fit into the data space.
-    if([poDefn GetFixedWidth]) {
-        return (int)nDataSize / [poDefn GetFixedWidth];
+    if([poDefn getFixedWidth]) {
+        return (int)nDataSize / [poDefn getFixedWidth];
     }
 
 // Note that it may be legal to have repeating variable width
@@ -60,14 +60,14 @@ NSString *pachData;
     int iOffset = 0, iRepeatCount = 1;
     
     while(TRUE) {
-        for(int iSF = 0; iSF < [poDefn GetSubfieldCount]; iSF++) {
+        for(int iSF = 0; iSF < [poDefn getSubfieldCount]; iSF++) {
             int nBytesConsumed;
-            DDFSubfieldDefinition * poThisSFDefn = [poDefn GetSubfield: iSF];
+            DDFSubfieldDefinition * poThisSFDefn = [poDefn getSubfield: iSF];
 
-            if([poThisSFDefn GetWidth] > nDataSize - iOffset) {
-                nBytesConsumed = [poThisSFDefn GetWidth];
+            if([poThisSFDefn getWidth] > nDataSize - iOffset) {
+                nBytesConsumed = [poThisSFDefn getWidth];
             } else {
-                [poThisSFDefn GetDataLength: [pachData substringFromIndex: iOffset]
+                [poThisSFDefn getDataLength: [pachData substringFromIndex: iOffset]
                                   nMaxBytes: (int)nDataSize - iOffset
                             pnConsumedBytes: &nBytesConsumed];
             }
@@ -85,13 +85,13 @@ NSString *pachData;
     }
 }
 
--(DDFFieldDefinition *) GetFieldDefn {
+-(DDFFieldDefinition *) getFieldDefn {
     return poDefn;
 }
 
--(NSString *) GetInstanceData: (int) nInstance
+-(NSString *) getInstanceData: (int) nInstance
                          pnSize: (int *) pnInstanceSize {
-    int nRepeatCount = [self GetRepeatCount];
+    int nRepeatCount = [self getRepeatCount];
     NSString *pachWrkData;
 
     if(nInstance < 0 || nInstance >= nRepeatCount) {
@@ -100,10 +100,10 @@ NSString *pachData;
 
 // Special case for fields without subfields (like "0001").
 // We don't currently handle repeating simple fields.
-    if([poDefn GetSubfieldCount] == 0) {
-        pachWrkData = [self GetData];
+    if([poDefn getSubfieldCount] == 0) {
+        pachWrkData = [self getData];
         if(pnInstanceSize != 0) {
-            *pnInstanceSize = (int)[self GetDataSize];
+            *pnInstanceSize = (int)[self getDataSize];
         }
         return pachWrkData;
     }
@@ -112,8 +112,8 @@ NSString *pachData;
 // iteration of the field.
     int nBytesRemaining1, nBytesRemaining2;
     DDFSubfieldDefinition *poFirstSubfield;
-    poFirstSubfield = [poDefn GetSubfield: 0];
-    pachWrkData = [self GetSubfieldData: poFirstSubfield
+    poFirstSubfield = [poDefn getSubfield: 0];
+    pachWrkData = [self getSubfieldData: poFirstSubfield
                              pnMaxBytes: &nBytesRemaining1
                          iSubfieldIndex: nInstance];
 
@@ -123,11 +123,11 @@ NSString *pachData;
         DDFSubfieldDefinition *poLastSubfield;
         int nLastSubfieldWidth;
         NSString *pachLastData;
-        poLastSubfield = [poDefn GetSubfield: [poDefn GetSubfieldCount]-1];
-        pachLastData = [self GetSubfieldData: poLastSubfield
+        poLastSubfield = [poDefn getSubfield: [poDefn getSubfieldCount]-1];
+        pachLastData = [self getSubfieldData: poLastSubfield
                                   pnMaxBytes: &nBytesRemaining2
                               iSubfieldIndex: nInstance];
-        [poLastSubfield GetDataLength: pachLastData
+        [poLastSubfield getDataLength: pachLastData
                             nMaxBytes: nBytesRemaining2
                       pnConsumedBytes: &nLastSubfieldWidth];
         *pnInstanceSize = nBytesRemaining1 - (nBytesRemaining2 - nLastSubfieldWidth);
@@ -135,7 +135,7 @@ NSString *pachData;
     return pachWrkData;
 }
 
--(NSString *) GetSubfieldData: (DDFSubfieldDefinition *) poSFDefn
+-(NSString *) getSubfieldData: (DDFSubfieldDefinition *) poSFDefn
                      pnMaxBytes: (int *) pnMaxBytes// = NULL,
                  iSubfieldIndex: (int) iSubfieldIndex { // = 0;
     int iOffset = 0;
@@ -144,15 +144,15 @@ NSString *pachData;
         return NULL;
     }
 
-    if(iSubfieldIndex > 0 && [poDefn GetFixedWidth] > 0) {
-        iOffset = [poDefn GetFixedWidth] * iSubfieldIndex;
+    if(iSubfieldIndex > 0 && [poDefn getFixedWidth] > 0) {
+        iOffset = [poDefn getFixedWidth] * iSubfieldIndex;
         iSubfieldIndex = 0;
     }
 
     while(iSubfieldIndex >= 0) {
-        for(int iSF = 0; iSF < [poDefn GetSubfieldCount]; iSF++) {
+        for(int iSF = 0; iSF < [poDefn getSubfieldCount]; iSF++) {
             int nBytesConsumed;
-            DDFSubfieldDefinition *poThisSFDefn = [poDefn GetSubfield: iSF];
+            DDFSubfieldDefinition *poThisSFDefn = [poDefn getSubfield: iSF];
             if(poThisSFDefn == poSFDefn && iSubfieldIndex == 0) {
                 if(pnMaxBytes != NULL) {
                     *pnMaxBytes = (int)nDataSize - iOffset;
@@ -160,7 +160,7 @@ NSString *pachData;
                 return [pachData substringFromIndex: iOffset];
                 //return [NSString stringWithCString: pachData + iOffset encoding: NSUTF8StringEncoding];
             }
-            [poThisSFDefn GetDataLength: [pachData substringFromIndex: iOffset]
+            [poThisSFDefn getDataLength: [pachData substringFromIndex: iOffset]
                               nMaxBytes: (int)nDataSize - iOffset
                         pnConsumedBytes: &nBytesConsumed];
             iOffset += nBytesConsumed;
@@ -171,7 +171,7 @@ NSString *pachData;
     return NULL;
 }
 
--(void) Dump: (FILE *) fp {
+-(void) dump: (FILE *) fp {
     int nMaxRepeat = 8;
 
     if(getenv("DDF_MAXDUMP") != NULL) {
@@ -179,7 +179,7 @@ NSString *pachData;
     }
 
     fprintf(fp, "  DDFField:\n");
-    fprintf(fp, "      Tag = '%s'\n", [[poDefn GetName] UTF8String]);
+    fprintf(fp, "      Tag = '%s'\n", [[poDefn getName] UTF8String]);
     fprintf(fp, "      DataSize = %ld\n", nDataSize);
 
     fprintf(fp, "      Data = '");
@@ -201,20 +201,20 @@ NSString *pachData;
     long iOffset = 0;
     int nLoopCount;
 
-    for(nLoopCount = 0; nLoopCount < [self GetRepeatCount]; nLoopCount++) {
+    for(nLoopCount = 0; nLoopCount < [self getRepeatCount]; nLoopCount++) {
         if(nLoopCount > nMaxRepeat) {
             fprintf(fp, "      ...\n");
             break;
         }
         
-        for(int i = 0; i < [poDefn GetSubfieldCount]; i++) {
+        for(int i = 0; i < [poDefn getSubfieldCount]; i++) {
             int nBytesConsumed;
 
-            [[poDefn GetSubfield: i] DumpData: [pachData substringFromIndex: iOffset]
+            [[poDefn getSubfield: i] dumpData: [pachData substringFromIndex: iOffset]
                                     nMaxBytes: (int)nDataSize - (int) iOffset
                                            fp: fp];
         
-            [[poDefn GetSubfield: i] GetDataLength: [pachData substringFromIndex: iOffset]
+            [[poDefn getSubfield: i] getDataLength: [pachData substringFromIndex: iOffset]
                                          nMaxBytes: (int) nDataSize - (int) iOffset
                                    pnConsumedBytes: &nBytesConsumed];
 

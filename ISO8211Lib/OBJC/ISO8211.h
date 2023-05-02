@@ -11,7 +11,6 @@
 #import "DDFModule.h"
 #import "DDFRecord.h"
 #import "DDFField.h"
-#import "DDFFieldDefinition.h"
 #import "DDFSubfieldDefinition.h"
 
 #define DDF_FIELD_TERMINATOR    30

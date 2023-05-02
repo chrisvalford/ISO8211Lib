@@ -62,7 +62,7 @@
  *
  * @return NULL on failure or a pointer to the cloned record.
  */
--(DDFRecord *) CloneOn: (DDFModule *) poTargetModule;
+-(DDFRecord *) cloneOn: (DDFModule *) poTargetModule;
 
 /**
  * Write out record contents to debugging file.
@@ -73,10 +73,10 @@
  *
  * @param fp The standard io file handle to write to.  ie. stderr
  */
--(void) Dump: (FILE *) fp;
+-(void) dump: (FILE *) fp;
 
 /// Get the number of DDFFields on this record.
-@property (NS_NONATOMIC_IOSONLY, readonly) int GetFieldCount;
+@property (NS_NONATOMIC_IOSONLY, readonly) int getFieldCount;
 
 /**
  * Find the named field within this record.
@@ -90,7 +90,7 @@
  * internal object, and should not be freed.  It remains valid until
  * the next record read.
  */
--(DDFField *) FindField: (const char *) pszName
+-(DDFField *) findField: (const char *) pszName
             iFieldIndex: (int) iFieldIndex;  // = 0;
 
 /**
@@ -100,7 +100,7 @@
  *
  * @return A DDFField pointer, or NULL if the index is out of range.
  */
--(DDFField *) GetField: (int) i;
+-(DDFField *) getField: (int) i;
 
 /**
  * Fetch value of a subfield as an integer.  This is a convenience
@@ -117,7 +117,7 @@
  * success.
  * @return The value of the subfield, or zero if it failed for some reason.
  */
--(int) GetIntSubfield: (const char *) pszField
+-(int) getIntSubfield: (const char *) pszField
           iFieldIndex: (int) iFieldIndex
           pszSubfield: (const char *) pszSubfield
        iSubfieldIndex: (int) iSubfieldIndex
@@ -138,7 +138,7 @@
  * success.
  * @return The value of the subfield, or zero if it failed for some reason.
  */
--(double) GetFloatSubfield: (const char *) pszField
+-(double) getFloatSubfield: (const char *) pszField
                iFieldIndex: (int) iFieldIndex
                pszSubfield: (const char *) pszSubfield
             iSubfieldIndex: (int) iSubfieldIndex
@@ -161,11 +161,11 @@
  * The returned pointer is to internal data and should not be modified or
  * freed by the application.
  */
--(NSString *) GetStringSubfield: (const char *) pszField
-                      iFieldIndex: (int) iFieldIndex
-                      pszSubfield: (const char *) pszSubfield
-                   iSubfieldIndex: (int) iSubfieldIndex
-                        pnSuccess: (int *) pnSuccess; // = NULL
+-(NSString *) getStringSubfield: (const char *) pszField
+                    iFieldIndex: (int) iFieldIndex
+                    pszSubfield: (const char *) pszSubfield
+                 iSubfieldIndex: (int) iSubfieldIndex
+                      pnSuccess: (int *) pnSuccess; // = NULL
 
 /**
  * Set an integer subfield in record.
@@ -181,7 +181,7 @@
  *
  * @return TRUE if successful, and FALSE if not.
  */
--(int) SetIntSubfield: (const char *) pszField
+-(int) setIntSubfield: (const char *) pszField
           iFieldIndex: (int) iFieldIndex
           pszSubfield: (const char *) pszSubfield
        iSubfieldIndex: (int) iSubfieldIndex
@@ -204,7 +204,7 @@
  *
  * @return TRUE if successful, and FALSE if not.
  */
--(int) SetStringSubfield: (const char *) pszField
+-(int) setStringSubfield: (const char *) pszField
              iFieldIndex: (int) iFieldIndex
              pszSubfield: (const char *) pszSubfield
           iSubfieldIndex: (int) iSubfieldIndex
@@ -225,7 +225,7 @@
  *
  * @return TRUE if successful, and FALSE if not.
  */
--(int) SetFloatSubfield: (const char *) pszField
+-(int) setFloatSubfield: (const char *) pszField
             iFieldIndex: (int) iFieldIndex
             pszSubfield: (const char *) pszSubfield
          iSubfieldIndex: (int) iSubfieldIndex
@@ -233,18 +233,18 @@
 
 
 /// Fetch size of records raw data (GetData()) in bytes.
-@property (NS_NONATOMIC_IOSONLY, readonly) int GetDataSize;
+@property (NS_NONATOMIC_IOSONLY, readonly) int getDataSize;
 
 /**
  * Fetch the raw data for this record.  The returned pointer is effectively
  * to the data for the first field of the record, and is of size GetDataSize().
  */
-@property (NS_NONATOMIC_IOSONLY, readonly) const char *GetData;
+@property (NS_NONATOMIC_IOSONLY, readonly) const char *getData;
 
 /**
  * Fetch the DDFModule with which this record is associated.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly, strong) DDFModule *GetModule;
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) DDFModule *getModule;
 
 /**
  * Alter field data size within record.
@@ -260,7 +260,7 @@
  *
  * @return TRUE on success or FALSE on failure.
  */
--(int) ResizeField: (DDFField *) poField
+-(int) resizeField: (DDFField *) poField
       nNewDataSize: (int) nNewDataSize;
 
 /**
@@ -280,7 +280,7 @@
  * @return TRUE on success, or FALSE on failure.  Failure can occur if
  * poTarget isn't really a field on this record.
  */
--(int) DeleteField: (DDFField *) poTarget;
+-(int) deleteField: (DDFField *) poTarget;
 
 /**
  * Add a new field to record.
@@ -298,7 +298,7 @@
  *
  * @return the field object on success, or NULL on failure.
  */
--(DDFField *) AddField: (DDFFieldDefinition *) poDefn;
+-(DDFField *) addField: (DDFFieldDefinition *) poDefn;
 
 /**
  * Initialize default instance.
@@ -316,7 +316,7 @@
  *
  * @return TRUE on success or FALSE on failure.
  */
--(int) CreateDefaultFieldInstance: (DDFField *)poField
+-(int) createDefaultFieldInstance: (DDFField *)poField
                 iIndexWithinField: (int) iIndexWithinField;
 
 /**
@@ -331,13 +331,13 @@
  *
  * @return TRUE on success or FALSE on failure.
  */
--(int) SetFieldRaw: (DDFField *)poField
+-(int) setFieldRaw: (DDFField *)poField
  iIndexWithinField: (int) iIndexWithinField
        pachRawData: (const char *)pachRawData
       nRawDataSize: (int) nRawDataSize;
 
 
--(int) UpdateFieldRaw: (DDFField *) poField
+-(int) updateFieldRaw: (DDFField *) poField
     iIndexWithinField: (int) iIndexWithinField
          nStartOffset: (int) nStartOffset
              nOldSize: (int) nOldSize
@@ -356,7 +356,7 @@
  *
  * @return TRUE on success or FALSE on failure.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly) int Write;
+@property (NS_NONATOMIC_IOSONLY, readonly) int write;
 
 /**
  * Read a record of data from the file, and parse the header to
@@ -367,18 +367,18 @@
  *
  * This method should only be called by the DDFModule class.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly) int Read;
+@property (NS_NONATOMIC_IOSONLY, readonly) int read;
 
 /**
  * Clear any information associated with the last header in
  * preparation for reading a new header.
  */
--(void) Clear;
+-(void) clear;
 
 /**
  * Re-prepares the directory information for the record.
  */
-@property (NS_NONATOMIC_IOSONLY, readonly) int ResetDirectory;
+@property (NS_NONATOMIC_IOSONLY, readonly) int resetDirectory;
 
 @end
 

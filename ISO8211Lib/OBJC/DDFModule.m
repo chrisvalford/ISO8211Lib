@@ -68,15 +68,15 @@ int nMaxCloneCount;
 }
 
 -(void) dealloc {
-    [self Close];
+    [self close];
 }
 
--(int) Open: (const char *) filePath bFailQuietly: (int) bFailQuietly { // = false
+-(int) open: (const char *) filePath bFailQuietly: (int) bFailQuietly { // = false
     static const size_t nLeaderSize = 24;
     
     // Close the existing file if there is one.
     if(fpDDF != NULL) {
-        [self Close];
+        [self close];
     }
     // Open the file.
     fpDDF = fopen(filePath, "rb");
@@ -194,7 +194,7 @@ int nMaxCloneCount;
         nFieldPos = (int) [DDFUtils DDFScanInt: pachRecord+nEntryOffset nMaxChars: _sizeFieldPos];
         
         DDFFieldDefinition *poFDefn = [[DDFFieldDefinition alloc] init];
-        if([poFDefn Initialize: self
+        if([poFDefn initialize: self
                         pszTag: [NSString stringWithUTF8String: szTag]
                          nSize: nFieldLength
                     pachRecord: [NSString stringWithUTF8String: pachRecord + _fieldAreaStart + nFieldPos]]) {
@@ -212,7 +212,7 @@ int nMaxCloneCount;
 }
 
 
--(int) Create: (const char *) pszFilename {
+-(int) create: (const char *) pszFilename {
 //    assert(fpDDF == NULL);
     
     // Create the file on disk.
@@ -233,7 +233,7 @@ int nMaxCloneCount;
     
     for(iField=0; iField < nFieldDefnCount; iField++) {
         int nLength;
-        [papoFieldDefns[iField] GenerateDDREntry: NULL pnLength: &nLength];
+        [papoFieldDefns[iField] generateDDREntry: NULL pnLength: &nLength];
         _recLength += nLength;
     }
     
@@ -260,8 +260,8 @@ int nMaxCloneCount;
     for(iField=0; iField < nFieldDefnCount; iField++) {
         char achDirEntry[12];
         int nLength;
-        [papoFieldDefns[iField] GenerateDDREntry: NULL pnLength: &nLength];
-        strcpy(achDirEntry, [[papoFieldDefns[iField] GetName] UTF8String]);
+        [papoFieldDefns[iField] generateDDREntry: NULL pnLength: &nLength];
+        strcpy(achDirEntry, [[papoFieldDefns[iField] getName] UTF8String]);
         sprintf(achDirEntry + _sizeFieldTag, "%03d", nLength);
         sprintf(achDirEntry + _sizeFieldTag + _sizeFieldLength, "%04d", nOffset);
         nOffset += nLength;
@@ -276,7 +276,7 @@ int nMaxCloneCount;
         char *pachData;
         int nLength;
         
-        [papoFieldDefns[iField] GenerateDDREntry: &pachData pnLength: &nLength];
+        [papoFieldDefns[iField] generateDDREntry: &pachData pnLength: &nLength];
         fwrite(pachData, nLength, 1, fpDDF);
         pachData = nil;
     }
@@ -284,7 +284,7 @@ int nMaxCloneCount;
 }
 
 
--(void) Close {
+-(void) close {
     // Close the file.
     if(fpDDF != NULL) {
         fclose(fpDDF);
@@ -303,7 +303,7 @@ int nMaxCloneCount;
     nFieldDefnCount = 0;
 }
 
--(int) Initialize: (char) chInterchangeLevel //= '3',
+-(int) initialize: (char) chInterchangeLevel //= '3',
      chLeaderIden: (char) chLeaderIden //= 'L',
 chCodeExtensionIndicator: (char) chCodeExtensionIndicator //= 'E',
   chVersionNumber: (char) chVersionNumber //= '1',
@@ -325,7 +325,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     return TRUE;
 }
 
--(void) Dump: (FILE *) fp {
+-(void) dump: (FILE *) fp {
     fprintf(fp, "DDFModule:\n");
     fprintf(fp, "    _recLength = %ld\n", _recLength);
     fprintf(fp, "    _interchangeLevel = %c\n", _interchangeLevel);
@@ -345,7 +345,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     }
 }
 
--(void) Log {
+-(void) log {
     NSLog(@"DDFModule:\n");
     NSLog(@"    _recLength = %ld\n", _recLength);
     NSLog(@"    _interchangeLevel = %c\n", _interchangeLevel);
@@ -365,18 +365,18 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     }
 }
 
--(DDFRecord *) ReadRecord {
+-(DDFRecord *) readRecord {
     if(poRecord == NULL) {
         poRecord = [[DDFRecord alloc] init: self];
     }
-    if([poRecord Read]) {
+    if([poRecord read]) {
         return poRecord;
     } else {
         return NULL;
     }
 }
 
--(void) Rewind: (long) nOffset { // = -1
+-(void) rewind: (long) nOffset { // = -1
     if(nOffset == -1) {
         nOffset = nFirstRecordOffset;
     }
@@ -386,15 +386,15 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     fseek(fpDDF, nOffset, SEEK_SET);
     
     if(nOffset == nFirstRecordOffset && poRecord != NULL) {
-        [poRecord Clear];
+        [poRecord clear];
     }
 }
 
--(DDFFieldDefinition *) FindFieldDefn: (NSString *) pszFieldName {
+-(DDFFieldDefinition *) findFieldDefn: (NSString *) pszFieldName {
     //  Application code may not always use the correct name case.
     for(int i = 0; i < nFieldDefnCount; i++) {
         DDFFieldDefinition *definition = papoFieldDefns[i];
-        NSString *foundName = [definition GetName];
+        NSString *foundName = [definition getName];
         if ([pszFieldName isEqualToString: foundName]) {
             return papoFieldDefns[i];
         }
@@ -402,11 +402,11 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     return NULL;
 }
 
--(int) GetFieldCount {
+-(int) getFieldCount {
     return nFieldDefnCount;
 }
 
--(DDFFieldDefinition *) GetField: (int) i {
+-(DDFFieldDefinition *) getField: (int) i {
     if(i < 0 || i >= nFieldDefnCount) {
         return NULL;
     } else {
@@ -414,7 +414,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     }
 }
 
--(void) AddField: (DDFFieldDefinition *) poNewFDefn {
+-(void) addField: (DDFFieldDefinition *) poNewFDefn {
 //    if (papoFieldDefns == NULL) {
 //        papoFieldDefns = [[NSMutableArray alloc] init];
 //    }
@@ -427,11 +427,11 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
 }
 
 // This is really just for internal use.
--(int) GetFieldControlLength {
+-(int) getFieldControlLength {
     return _fieldControlLength;
 }
 
--(void) AddCloneRecord: (DDFRecord *) poRecord {
+-(void) addCloneRecord: (DDFRecord *) poRecord {
     if (papoClones == NULL) {
         papoClones = [[NSMutableArray alloc] init];
     }
@@ -447,7 +447,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
 //    papoClones[nCloneCount++] = poRecord;
 }
 
--(void) RemoveCloneRecord: (DDFRecord *) poRecord {
+-(void) removeCloneRecord: (DDFRecord *) poRecord {
     int i;
     
     for(i = 0; i < nCloneCount; i++) {
@@ -460,7 +460,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
 //    assert(FALSE);
 }
 
--(FILE *) GetFP {
+-(FILE *) getFP {
     return fpDDF;
 }
 
