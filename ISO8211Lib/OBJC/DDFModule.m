@@ -190,12 +190,17 @@ int nMaxCloneCount;
         
         nEntryOffset += _sizeFieldLength;
         nFieldPos = (int) [DDFUtils DDFScanInt: pachRecord+nEntryOffset nMaxChars: _sizeFieldPos];
-        
+
+        // DEBUG:
+        NSString *str = [NSString stringWithUTF8String: szTag];
+        char *pach = pachRecord + _fieldAreaStart + nFieldPos;
+        NSString *pachStr = [NSString stringWithCString: pach encoding: NSUTF8StringEncoding];
+
         DDFFieldDefinition *poFDefn = [[DDFFieldDefinition alloc] init];
         if([poFDefn initializeWithPoModuleIn: self
-                        pszTag: [NSString stringWithUTF8String: szTag]
+                        pszTag: str
                          nSize: nFieldLength
-                    pachRecord: [NSString stringWithUTF8String: pachRecord + _fieldAreaStart + nFieldPos]]) {
+                    pachRecord: pachStr]) {
             [papoFieldDefns insertObject: poFDefn atIndex: nFieldDefnCount];
             nFieldDefnCount++;
         } else {

@@ -183,7 +183,8 @@ import Foundation
     @objc func initialize(poModuleIn: DDFModule,
                           pszTag pszTagIn: String,
                           nSize nFieldEntrySize: Int,
-                          pachRecord pachFieldArea: [UInt8]) -> Bool {
+                          pachRecord pachFieldArea: String) -> Bool {
+        let pachFieldArea = Array(pachFieldArea.utf8)
         var iFDOffset: Int32 = poModuleIn.getFieldControlLength
         var nCharsConsumed: Int32 = 0
 
@@ -322,7 +323,7 @@ import Foundation
         if _formatControls.count < 2
             || _formatControls[0] != "(".asciiValue
             || _formatControls[_formatControls.count-1] != ")".asciiValue {
-            debugPrint("Format controls for '%@' field missing brackets:%s", _tag ?? "MISSING", _formatControls)
+            debugPrint("Format controls for \(_tag ?? "MISSING") field missing brackets: \(_formatControls)")
             return false
         }
 
