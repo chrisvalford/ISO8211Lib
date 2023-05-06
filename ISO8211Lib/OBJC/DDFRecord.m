@@ -1,13 +1,14 @@
 //
 // DDFRecord.m
-// Lib
+// ISO8211Lib
 //
 //  Created by Christopher Alford on 10/4/23.
 //
 
-#import <Foundation/Foundation.h>
-#import "DDFUtils.h"
+#import "DDFRecord.h"
 #import "ISO8211.h"
+#import "ISO8211Lib-Swift.h"
+#import "DDFUtils.h"
 
 @implementation DDFRecord {
     
@@ -463,15 +464,15 @@
 
 -(int) createDefaultFieldInstance: (DDFField *)poField
                iIndexWithinField : (int) iIndexWithinField {
-    int nRawSize, nSuccess;
-    char *pachRawData;
-    
-    pachRawData = [[[poField getFieldDefn] getDefaultValue: &nRawSize] cStringUsingEncoding: NSUTF8StringEncoding];
-    if(pachRawData == NULL) {
-        return FALSE;
-    }
-    nSuccess = [self setFieldRaw: poField iIndexWithinField: iIndexWithinField pachRawData: pachRawData nRawDataSize: nRawSize];
-    pachRawData = NULL;
+    __block int nSuccess;
+    //pachRawData = [[[poField getFieldDefn] getDefaultValue: &nRawSize] cStringUsingEncoding: NSUTF8StringEncoding];
+    [[poField getFieldDefn] getDefaultValueWithPnSize: 0 completion:^(NSString * _Nonnull data, NSInteger count) {
+        int index = (int) count;
+        nSuccess = [self setFieldRaw: poField
+                   iIndexWithinField: iIndexWithinField
+                         pachRawData: [data cStringUsingEncoding: NSUTF8StringEncoding]
+                        nRawDataSize: index];
+    }];
     return nSuccess;
 }
 
@@ -629,7 +630,7 @@
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefnWithPszMnemonic: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return 0;
     }
@@ -666,7 +667,7 @@
     }
     
     // Get the subfield definition.
-    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefnWithPszMnemonic: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return 0;
     }
@@ -702,7 +703,7 @@
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefnWithPszMnemonic: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return NULL;
     }
@@ -733,7 +734,7 @@
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefnWithPszMnemonic: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return FALSE;
     }
@@ -813,7 +814,7 @@
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefnWithPszMnemonic: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return FALSE;
     }
@@ -893,7 +894,7 @@
     }
     
     // Get the subfield definition
-    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefn: @(pszSubfield)];
+    DDFSubfieldDefinition *poSFDefn = [[poField getFieldDefn] findSubfieldDefnWithPszMnemonic: @(pszSubfield)];
     if(poSFDefn == NULL) {
         return FALSE;
     }
@@ -957,7 +958,7 @@
 }
 
 -(int) write {
-    if(![self ResetDirectory]) {
+    if(![self resetDirectory]) {
         return FALSE;
     }
     
@@ -998,7 +999,7 @@
     // previous records data without disturbing the rest of the record.
     size_t nReadBytes = fread(pachData + nFieldOffset, 1,
                        nDataSize - nFieldOffset,
-                       [poModule GetFP]);
+                       [poModule getFP]);
     if(nReadBytes != (size_t) (nDataSize - nFieldOffset) && nReadBytes == 0 && feof([poModule getFP])) {
         return FALSE;
     } else if(nReadBytes != (size_t) (nDataSize - nFieldOffset)) {
@@ -1093,7 +1094,7 @@
         nOffset = ([[field getData] UTF8String] - pachData);
 
         DDFField *recordField = poNR->paoFields[i];
-        [recordField Initialize: [field getFieldDefn]
+        [recordField initialize: [field getFieldDefn]
                         pszData: [NSString stringWithUTF8String: poNR->pachData + nOffset]
                           nSize: [field getDataSize]];
         poNR->paoFields[i] = recordField;

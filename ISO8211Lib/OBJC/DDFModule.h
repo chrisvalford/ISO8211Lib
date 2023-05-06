@@ -1,6 +1,6 @@
 //
 //  DDFModule.h
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 10/4/23.
 //
@@ -9,9 +9,8 @@
 #define DDFModule_h
 
 #import <Foundation/Foundation.h>
-#import "ISO8211.h"
 
-@class DDFRecord;
+@class DFFRecord;
 @class DDFFieldDefinition;
 
 /**
@@ -26,7 +25,7 @@
 -(void) dealloc;
 
 @property (nonatomic, retain) NSMutableArray *papoFieldDefns; // [DDFFieldDefn]
-@property (nonatomic, retain) DDFRecord *poRecord;
+@property (nonatomic) DDFRecord *poRecord;
 @property (nonatomic, retain) NSMutableArray *papoClones; // [DDFRecord]
 
 /**

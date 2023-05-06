@@ -1,6 +1,6 @@
 //
 //  ISO8211.h
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 9/4/23.
 //
@@ -8,15 +8,15 @@
 #ifndef ISO8211_h
 #define ISO8211_h
 
+#import "DDFField.h"
 #import "DDFModule.h"
 #import "DDFRecord.h"
-#import "DDFField.h"
 #import "DDFSubfieldDefinition.h"
 
 #define DDF_FIELD_TERMINATOR    30
 #define DDF_UNIT_TERMINATOR     31
 
-static const size_t nLeaderSize = 24;
+static const int nLeaderSize = 24;
 
 #if UINT_MAX == 65535
 typedef long            GInt32;

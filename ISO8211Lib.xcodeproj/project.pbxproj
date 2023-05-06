@@ -129,13 +129,12 @@
 		2F1A41E12A002DC400B3C1EF /* ISO8211Lib */ = {
 			isa = PBXGroup;
 			children = (
+				2FD435002A01715B00E7DEF1 /* DDF */,
+				2FF7449C2A00E0C100195F7A /* Extensions */,
 				2F1A422A2A002F0E00B3C1EF /* OBJC */,
 				2F1A41E22A002DC400B3C1EF /* AppDelegate.swift */,
 				2F1A41E42A002DC400B3C1EF /* ViewController.swift */,
-				2FF744922A00DA8100195F7A /* DDFUtils.swift */,
 				2FF744932A00DA8100195F7A /* Exceptions.swift */,
-				2FF744BE2A01247B00195F7A /* DDFException.swift */,
-				2FF7449C2A00E0C100195F7A /* Extensions */,
 				2F1A41E92A002DC500B3C1EF /* Assets.xcassets */,
 				2F1A41EB2A002DC500B3C1EF /* Main.storyboard */,
 				2F1A41EE2A002DC500B3C1EF /* ISO8211Lib.entitlements */,
@@ -168,7 +167,6 @@
 				2F1A422E2A002F0E00B3C1EF /* ISO8211.h */,
 				2F1A422B2A002F0E00B3C1EF /* DDFField.h */,
 				2F1A42322A002F0E00B3C1EF /* DDFField.m */,
-				2FF744B62A00E80600195F7A /* DDFFieldDefinition.swift */,
 				2F1A42362A002F0E00B3C1EF /* DDFModule.h */,
 				2F1A42302A002F0E00B3C1EF /* DDFModule.m */,
 				2F1A422F2A002F0E00B3C1EF /* DDFRecord.h */,
@@ -179,6 +177,16 @@
 				2F1A42342A002F0E00B3C1EF /* DDFUtils.m */,
 			);
 			path = OBJC;
+			sourceTree = "<group>";
+		};
+		2FD435002A01715B00E7DEF1 /* DDF */ = {
+			isa = PBXGroup;
+			children = (
+				2FF744B62A00E80600195F7A /* DDFFieldDefinition.swift */,
+				2FF744922A00DA8100195F7A /* DDFUtils.swift */,
+				2FF744BE2A01247B00195F7A /* DDFException.swift */,
+			);
+			path = DDF;
 			sourceTree = "<group>";
 		};
 		2FF7449C2A00E0C100195F7A /* Extensions */ = {

@@ -4,3 +4,6 @@
 
 #import "ISO8211.h"
 #import "DDFUtils.h"
+#import "DDFModule.h"
+#import "DDFRecord.h"
+#import "DDFSubfieldDefinition.h"

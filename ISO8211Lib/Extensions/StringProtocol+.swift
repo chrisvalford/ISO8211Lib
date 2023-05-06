@@ -1,6 +1,6 @@
 //
 //  StringProtocol+.swift
-//  CatalogWriter
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 6/2/23.
 //

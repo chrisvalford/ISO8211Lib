@@ -1,6 +1,6 @@
 //
 //  DDFField.h
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 10/4/23.
 //
@@ -8,9 +8,11 @@
 #ifndef DDFField_h
 #define DDFField_h
 
-//#import "ISO8211Lib-Swift.h"
-#import "DDFSubfieldDefinition.h"
+#import <Foundation/Foundation.h>
+#import "DDFField.h"
+#import "ISO8211.h"
 
+@class DDFFieldDefinition;
 @class DDFSubfieldDefinition;
 
 /**

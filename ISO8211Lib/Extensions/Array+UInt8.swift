@@ -1,6 +1,6 @@
 //
 //  Array+UInt8.swift
-//  ISO8211
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 23/01/2017.
 //  Copyright © 2017 Marine+Digital. All rights reserved.

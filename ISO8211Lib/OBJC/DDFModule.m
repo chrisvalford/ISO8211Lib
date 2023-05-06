@@ -1,16 +1,14 @@
 //
 //  DDFModule.m
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 10/4/23.
 //
 
 #import <Foundation/Foundation.h>
-#import "DDFModule.h"
-#import "DDFUtils.h"
+#import "ISO8211Lib-Swift.h"
 #import "ISO8211.h"
-#import "DDFFieldDefinition.h"
-#import "DDFRecord.h"
+#import "DDFUtils.h"
 
 @implementation DDFModule {
     
@@ -194,7 +192,7 @@ int nMaxCloneCount;
         nFieldPos = (int) [DDFUtils DDFScanInt: pachRecord+nEntryOffset nMaxChars: _sizeFieldPos];
         
         DDFFieldDefinition *poFDefn = [[DDFFieldDefinition alloc] init];
-        if([poFDefn initialize: self
+        if([poFDefn initializeWithPoModuleIn: self
                         pszTag: [NSString stringWithUTF8String: szTag]
                          nSize: nFieldLength
                     pachRecord: [NSString stringWithUTF8String: pachRecord + _fieldAreaStart + nFieldPos]]) {
@@ -232,8 +230,16 @@ int nMaxCloneCount;
     _fieldAreaStart = _recLength;
     
     for(iField=0; iField < nFieldDefnCount; iField++) {
-        int nLength;
-        [papoFieldDefns[iField] generateDDREntry: NULL pnLength: &nLength];
+        __block int nLength = 0;
+        //[papoFieldDefns[iField] generateDDREntry: NULL pnLength: &nLength];
+        [papoFieldDefns[iField] generateDDREntryWithPpachData: NULL
+                                                     pnLength: nLength
+                                                   completion:^(BOOL success,
+                                                                NSArray<NSNumber *>  * _Nonnull d,
+                                                                NSInteger n) {
+            NSArray *items = d;
+            nLength = (int) n;
+        }];
         _recLength += nLength;
     }
     
@@ -259,8 +265,16 @@ int nMaxCloneCount;
     int nOffset = 0;
     for(iField=0; iField < nFieldDefnCount; iField++) {
         char achDirEntry[12];
-        int nLength;
-        [papoFieldDefns[iField] generateDDREntry: NULL pnLength: &nLength];
+        __block int nLength = 0;
+        //[papoFieldDefns[iField] GenerateDDREntry: NULL pnLength: &nLength];
+        [papoFieldDefns[iField] generateDDREntryWithPpachData: NULL
+                                                     pnLength: nLength
+                                                   completion:^(BOOL success,
+                                                                NSArray<NSNumber *>  * _Nonnull d,
+                                                                NSInteger n) {
+            NSArray *items = d;
+            nLength = (int) n;
+        }];
         strcpy(achDirEntry, [[papoFieldDefns[iField] getName] UTF8String]);
         sprintf(achDirEntry + _sizeFieldTag, "%03d", nLength);
         sprintf(achDirEntry + _sizeFieldTag + _sizeFieldLength, "%04d", nOffset);
@@ -273,10 +287,17 @@ int nMaxCloneCount;
     
     // Write out the field descriptions themselves.
     for(iField=0; iField < nFieldDefnCount; iField++) {
-        char *pachData;
-        int nLength;
-        
-        [papoFieldDefns[iField] generateDDREntry: &pachData pnLength: &nLength];
+        char *pachData = NULL;
+        __block int nLength = 0;
+        //[papoFieldDefns[iField] generateDDREntry: &pachData pnLength: &nLength];
+        [papoFieldDefns[iField] generateDDREntryWithPpachData: [NSString stringWithCString: pachData encoding: NSUTF8StringEncoding]
+                                                     pnLength: nLength
+                                                   completion:^(BOOL success,
+                                                                NSArray<NSNumber *>  * _Nonnull d,
+                                                                NSInteger n) {
+            NSArray *items = d;
+            nLength = (int) n;
+        }];
         fwrite(pachData, nLength, 1, fpDDF);
         pachData = nil;
     }
@@ -341,7 +362,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     fprintf(fp, "    _sizeFieldTag = %ld\n", _sizeFieldTag);
     
     for(int i = 0; i < nFieldDefnCount; i++) {
-        [papoFieldDefns[i] Dump: fp];
+        [papoFieldDefns[i] dump: fp];
     }
 }
 
@@ -361,7 +382,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     NSLog(@"    _sizeFieldTag = %ld\n", _sizeFieldTag);
     
     for(int i = 0; i < nFieldDefnCount; i++) {
-        [papoFieldDefns[i] Log];
+        [papoFieldDefns[i] log];
     }
 }
 
@@ -394,6 +415,7 @@ pszExtendedCharSet: (const char *) pszExtendedCharSet //= " ! ",
     //  Application code may not always use the correct name case.
     for(int i = 0; i < nFieldDefnCount; i++) {
         DDFFieldDefinition *definition = papoFieldDefns[i];
+
         NSString *foundName = [definition getName];
         if ([pszFieldName isEqualToString: foundName]) {
             return papoFieldDefns[i];

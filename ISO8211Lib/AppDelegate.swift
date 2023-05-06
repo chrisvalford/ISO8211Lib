@@ -59,7 +59,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func viewRecordField(_ poField: DDFField) {
         var nBytesRemaining: Int
         var pachFieldData: String
-        var poFieldDefn: DDFFieldDefinition = poField.getFieldDefn!
+        let poFieldDefn: DDFFieldDefinition = poField.getFieldDefn!
         
         // Report general information about the field.
         debugPrint("    Field %s: %@\n",
@@ -78,7 +78,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             // the data pointer as we consume data.
             for iSF in 0 ..< poFieldDefn.getSubfieldCount() {
                 if let poSFDefn: DDFSubfieldDefinition = poFieldDefn.getSubfield(i: iSF) {
-                    var nBytesConsumed = viewSubfield(poSFDefn,
+                    let nBytesConsumed = viewSubfield(poSFDefn,
                                                       pachFieldData: pachFieldData,
                                                       nBytesRemaining: nBytesRemaining)
                     nBytesRemaining -= nBytesConsumed

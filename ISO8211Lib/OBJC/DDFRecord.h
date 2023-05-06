@@ -1,6 +1,6 @@
 //
 //  DDFRecord.h
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 10/4/23.
 //
@@ -8,10 +8,12 @@
 #ifndef DDFRecord_h
 #define DDFRecord_h
 
+#import <Foundation/Foundation.h>
+
 #import "ISO8211.h"
+#import "DDFRecord.h"
 
 @class DDFModule;
-@class DDFField;
 @class DDFFieldDefinition;
 
 /**

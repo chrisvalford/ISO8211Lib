@@ -1,11 +1,12 @@
 //
 //  DDFField.m
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 10/4/23.
 //
 
 #import <Foundation/Foundation.h>
+#import "ISO8211Lib-Swift.h"
 #import "DDFField.h"
 
 @implementation DDFField
@@ -41,6 +42,7 @@ NSString *pachData;
 }
 
 -(int) getRepeatCount {
+    
     if(![poDefn isRepeating]) {
         return 1;
     }
@@ -62,7 +64,7 @@ NSString *pachData;
     while(TRUE) {
         for(int iSF = 0; iSF < [poDefn getSubfieldCount]; iSF++) {
             int nBytesConsumed;
-            DDFSubfieldDefinition * poThisSFDefn = [poDefn getSubfield: iSF];
+            DDFSubfieldDefinition * poThisSFDefn = [poDefn getSubfieldWithI: iSF];
 
             if([poThisSFDefn getWidth] > nDataSize - iOffset) {
                 nBytesConsumed = [poThisSFDefn getWidth];
@@ -112,7 +114,7 @@ NSString *pachData;
 // iteration of the field.
     int nBytesRemaining1, nBytesRemaining2;
     DDFSubfieldDefinition *poFirstSubfield;
-    poFirstSubfield = [poDefn getSubfield: 0];
+    poFirstSubfield = [poDefn getSubfieldWithI: 0];
     pachWrkData = [self getSubfieldData: poFirstSubfield
                              pnMaxBytes: &nBytesRemaining1
                          iSubfieldIndex: nInstance];
@@ -123,7 +125,7 @@ NSString *pachData;
         DDFSubfieldDefinition *poLastSubfield;
         int nLastSubfieldWidth;
         NSString *pachLastData;
-        poLastSubfield = [poDefn getSubfield: [poDefn getSubfieldCount]-1];
+        poLastSubfield = [poDefn getSubfieldWithI: [poDefn getSubfieldCount]-1];
         pachLastData = [self getSubfieldData: poLastSubfield
                                   pnMaxBytes: &nBytesRemaining2
                               iSubfieldIndex: nInstance];
@@ -152,7 +154,7 @@ NSString *pachData;
     while(iSubfieldIndex >= 0) {
         for(int iSF = 0; iSF < [poDefn getSubfieldCount]; iSF++) {
             int nBytesConsumed;
-            DDFSubfieldDefinition *poThisSFDefn = [poDefn getSubfield: iSF];
+            DDFSubfieldDefinition *poThisSFDefn = [poDefn getSubfieldWithI: iSF];
             if(poThisSFDefn == poSFDefn && iSubfieldIndex == 0) {
                 if(pnMaxBytes != NULL) {
                     *pnMaxBytes = (int)nDataSize - iOffset;
@@ -210,11 +212,11 @@ NSString *pachData;
         for(int i = 0; i < [poDefn getSubfieldCount]; i++) {
             int nBytesConsumed;
 
-            [[poDefn getSubfield: i] dumpData: [pachData substringFromIndex: iOffset]
+            [[poDefn getSubfieldWithI: i] dumpData: [pachData substringFromIndex: iOffset]
                                     nMaxBytes: (int)nDataSize - (int) iOffset
                                            fp: fp];
         
-            [[poDefn getSubfield: i] getDataLength: [pachData substringFromIndex: iOffset]
+            [[poDefn getSubfieldWithI: i] getDataLength: [pachData substringFromIndex: iOffset]
                                          nMaxBytes: (int) nDataSize - (int) iOffset
                                    pnConsumedBytes: &nBytesConsumed];
 

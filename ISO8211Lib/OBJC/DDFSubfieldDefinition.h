@@ -1,6 +1,6 @@
 //
 //  DDFSubfieldDefinition.h
-//  Lib
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 9/4/23.
 //
@@ -8,6 +8,7 @@
 #ifndef DDFSubfieldDefn_h
 #define DDFSubfieldDefn_h
 
+#import <Foundation/Foundation.h>
 #import "ISO8211.h"
 
 /**
@@ -32,7 +33,7 @@ typedef NS_ENUM(NSInteger, DDFDataType) {
 -(void) dealloc;
 
 /** Get pointer to subfield name. */
-@property NSString *name; // a.k.a. subfield mnemonic
+@property (nonatomic) NSString *name; // a.k.a. subfield mnemonic
 
 /** Get pointer to subfield format string */
 @property (readonly) NSString *getFormat;

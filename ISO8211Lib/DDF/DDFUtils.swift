@@ -1,11 +1,13 @@
 //
 //  DDFUtils.swift
-//  ISO8211Reader
+//  ISO8211Lib
 //
 //  Created by Christopher Alford on 28/1/22.
 //
 
 import Foundation
+
+static const size_t nLeaderSize = 24;
 
 @objc public class DDFUtils: NSObject {
 

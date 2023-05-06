@@ -39,7 +39,7 @@ import Foundation
     };
 
     //public:
-    override init() {
+    @objc override init() {
         poModule = nil
         bRepeatingSubfields = false
         nFixedWidth = 0
@@ -49,7 +49,7 @@ import Foundation
 
     }
 
-    deinit {
+    @objc deinit {
         _tag = nil
         _fieldName.removeAll()
         _formatControls.removeAll()
@@ -92,7 +92,7 @@ import Foundation
             _formatControls = Array("()".utf8)
         }
 
-        var nOldLen = _formatControls.count
+        let nOldLen = _formatControls.count
 
         var pszNewFormatControls = [UInt8](repeating: 0, count: nOldLen + 3 + poNewSFDefn.getFormat.count)
         pszNewFormatControls.insert(contentsOf: _formatControls, at: 0)
@@ -121,58 +121,62 @@ import Foundation
         addSubfield(poNewSFDefn: poSFDefn, bDontAddToFormat: false)
     }
 
-    func generateDDREntry(ppachData: inout [UInt8], pnLength: inout Int) -> Bool {
-        pnLength = 9 + _fieldName.count + 1 + _arrayDescr.count + 1 + _formatControls.count + 1
+    @objc func generateDDREntry(ppachData: String, pnLength: Int, completion: (_ success: Bool,
+                                                                                _ ppachData: [UInt8],
+                                                                                _ pnLength: Int)->(Void)) {
+        var _pnLength = pnLength
+        var _ppachData = ppachData.byteArray
+        _pnLength = 9 + _fieldName.count + 1 + _arrayDescr.count + 1 + _formatControls.count + 1
 
         if _formatControls.count == 0 {
-            pnLength -= 1
+            _pnLength -= 1
         }
-        if ppachData.isEmpty {
-            return true
+        if _ppachData.isEmpty {
+            completion(true, _ppachData, _pnLength)
         }
-        ppachData = [UInt8](repeating: 0, count: pnLength + 1)
+        _ppachData = [UInt8](repeating: 0, count: pnLength + 1)
 
         if _data_struct_code == .dsc_elementary {
-            ppachData[0] = "0".asciiValue
+            _ppachData[0] = "0".asciiValue
         } else if _data_struct_code == .dsc_vector {
-            ppachData[0] = "1".asciiValue
+            _ppachData[0] = "1".asciiValue
         } else if _data_struct_code == .dsc_array {
-            ppachData[0] = "2".asciiValue
+            _ppachData[0] = "2".asciiValue
         } else if _data_struct_code == .dsc_concatenated {
-            ppachData[0] = "3".asciiValue
+            _ppachData[0] = "3".asciiValue
         }
 
         if _data_type_code == .dtc_char_string {
-            ppachData[1] = "0".asciiValue
+            _ppachData[1] = "0".asciiValue
         } else if _data_type_code == .dtc_implicit_point {
-            ppachData[1] = "1".asciiValue
+            _ppachData[1] = "1".asciiValue
         } else if _data_type_code == .dtc_explicit_point {
-            ppachData[1] = "2".asciiValue
+            _ppachData[1] = "2".asciiValue
         } else if _data_type_code == .dtc_explicit_point_scaled {
-            ppachData[1] = "3".asciiValue
+            _ppachData[1] = "3".asciiValue
         } else if _data_type_code == .dtc_char_bit_string {
-            ppachData[1] = "4".asciiValue
+            _ppachData[1] = "4".asciiValue
         } else if _data_type_code == .dtc_bit_string {
-            ppachData[1] = "5".asciiValue
+            _ppachData[1] = "5".asciiValue
         } else if _data_type_code == .dtc_mixed_data_type {
-            ppachData[1] = "6".asciiValue
+            _ppachData[1] = "6".asciiValue
         }
-        ppachData[2] = "0".asciiValue
-        ppachData[3] = "0".asciiValue
-        ppachData[4] = ";".asciiValue
-        ppachData[5] = "&".asciiValue
-        ppachData[6] = " ".asciiValue
-        ppachData[7] = " ".asciiValue
-        ppachData[8] = " ".asciiValue
+        _ppachData[2] = "0".asciiValue
+        _ppachData[3] = "0".asciiValue
+        _ppachData[4] = ";".asciiValue
+        _ppachData[5] = "&".asciiValue
+        _ppachData[6] = " ".asciiValue
+        _ppachData[7] = " ".asciiValue
+        _ppachData[8] = " ".asciiValue
         let str = String(format: "%s%c%s", _fieldName, DDF_UNIT_TERMINATOR, _arrayDescr)
-        ppachData.insert(contentsOf: Array(str.utf8), at: 9)
+        _ppachData.insert(contentsOf: Array(str.utf8), at: 9)
         if _formatControls.count > 0 {
             let str = String(format: "%c%s", DDF_UNIT_TERMINATOR, _formatControls)
-            ppachData.insert(contentsOf: Array(str.utf8), at: ppachData.count) // Possibly +1
+            _ppachData.insert(contentsOf: Array(str.utf8), at: ppachData.count) // Possibly +1
         }
         let str2 = String(format: "%c", DDF_FIELD_TERMINATOR)
-        ppachData.insert(contentsOf: Array(str2.utf8), at: ppachData.count)  // Possibly +1
-        return true
+        _ppachData.insert(contentsOf: Array(str2.utf8), at: ppachData.count)  // Possibly +1
+        completion(true, _ppachData, _pnLength)
     }
 
 
@@ -269,7 +273,7 @@ import Foundation
         return true
     }
 
-    func buildSubfields() -> Bool {
+    @objc func buildSubfields() -> Bool {
         var subfieldNames: [String]
         var pszSublist: String = _arrayDescr
 
@@ -310,7 +314,7 @@ import Foundation
         return true
     }
 
-    func applyFormats() -> Bool {
+    @objc func applyFormats() -> Bool {
         var pszFormatList: [UInt8] = []
         var papszFormatItems: [[UInt8]]
 
@@ -332,8 +336,8 @@ import Foundation
         // Apply the format items to subfields.
         var iFormatItem: Int = 0
         //    for(iFormatItem = 0; papszFormatItems[iFormatItem] != NULL; iFormatItem++ ) {
-        for iFormatItem in 0 ..< papszFormatItems.count {
-            var pszPastPrefix: [UInt8] = papszFormatItems[iFormatItem]
+        for n in 0 ..< papszFormatItems.count {
+            var pszPastPrefix: [UInt8] = papszFormatItems[n]
             var ppCount = 0
             // FIXME: Is this supposed to find the last occurance of a number?
             for i in 0 ..< pszPastPrefix.count {
@@ -345,7 +349,7 @@ import Foundation
             // Did we get too many formats for the subfields created by names?
             // This may be legal by the 8211 specification, but isn't encountered
             // in any formats we care about so we just blow.
-            if iFormatItem >= subfieldDefinitions.count {
+            if n >= subfieldDefinitions.count {
                 debugPrint("Got more formats than subfields for field '%@'.", _tag ?? "MISSING")
                 break
             }
@@ -353,6 +357,7 @@ import Foundation
             //            if !subfieldDefinitions[iFormatItem].setFormat(pszPastPrefix[ppCount...]) {
             //                return false
             //            }
+            iFormatItem = n
         }
 
         // Verify that we got enough formats, cleanup and return.
@@ -377,7 +382,7 @@ import Foundation
         return true
     }
 
-    func dump(fp: FILE ) {
+    @objc func dump(fp: FILE ) {
         var pszValue = ""
 
         //        fprintf(fp, "  DDFFieldDefn:\n");
@@ -443,19 +448,19 @@ import Foundation
     /** Fetch a pointer to the field name (tag).
      * - Returns: this is an internal copy and shouldn't be freed.
      */
-    func getName() -> String {
+    @objc func getName() -> String {
         return _tag ?? ""
     }
 
     /** Fetch a longer description of this field.
      * - Returns: this is an internal copy and shouldn't be freed.
      */
-    func getDescription() -> String {
+    @objc func getDescription() -> String {
         return String(bytes: _fieldName, encoding: .utf8) ?? ""
     }
 
     /** Get the number of subfields. */
-    func getSubfieldCount() -> Int {
+    @objc func getSubfieldCount() -> Int {
         return subfieldDefinitions.count
     }
 
@@ -466,7 +471,7 @@ import Foundation
      * - Returns: The width of the field in bytes, or zero if the field is not
      * apparently of a fixed width.
      */
-    func getFixedWidth() -> Int {
+    @objc func getFixedWidth() -> Int {
         return nFixedWidth
     }
 
@@ -475,23 +480,23 @@ import Foundation
      * @see DDFField::GetRepeatCount()
      * - Returns: TRUE if the field is marked as repeating.
      */
-    func isRepeating() -> Bool {
+    @objc func isRepeating() -> Bool {
         return bRepeatingSubfields
     }
 
     /** this is just for an S-57 hack for swedish data */
-    func setRepeatingFlag(n: Bool) {
+    @objc func setRepeatingFlag(n: Bool) {
         bRepeatingSubfields = n
     }
 
-    func getSubfield(i: Int) -> DDFSubfieldDefinition? {
+    @objc func getSubfield(i: Int) -> DDFSubfieldDefinition? {
         if i < 0 || i >= subfieldDefinitions.count {
             return nil
         }
         return subfieldDefinitions[i]
     }
 
-    func findSubfieldDefn(pszMnemonic: String) -> DDFSubfieldDefinition? {
+    @objc func findSubfieldDefn(pszMnemonic: String) -> DDFSubfieldDefinition? {
         for i in 0 ..< subfieldDefinitions.count {
             if pszMnemonic == subfieldDefinitions[i].name {
                 return subfieldDefinitions[i]
@@ -576,23 +581,24 @@ import Foundation
     //        return [NSString stringWithCString: pszDest encoding: NSUTF8StringEncoding];
     //    }
 
-    func getDefaultValue(pnSize: inout Int?) -> String? {
+    @objc func getDefaultValue(pnSize: Int = 0, completion: (String, Int)->()) {
         // Loop once collecting the sum of the subfield lengths
         var nTotalSize = Int32(0)
+        var _pnSize = pnSize
 
         for iSubfield in 0 ..< subfieldDefinitions.count {
             var nSubfieldSize: Int32 = 0
             if (subfieldDefinitions[iSubfield].getDefaultValue(nil,
                                                                nBytesAvailable: 0,
                                                                pnBytesUsed: &nSubfieldSize) == 0) {
-                return nil
+                completion("", _pnSize)
             }
             nTotalSize += nSubfieldSize
         }
         // Allocate buffer.
-        var pachData = [UInt8](repeating: 0, count: Int(nTotalSize))
-        if pnSize != nil {
-            pnSize = Int(nTotalSize)
+        let pachData = [UInt8](repeating: 0, count: Int(nTotalSize))
+        if _pnSize != 0 {
+            _pnSize = Int(nTotalSize)
         }
         // Loop again, collecting actual default values.
         var nOffset = 0
@@ -604,12 +610,12 @@ import Foundation
                                                                     pnBytesUsed: &nSubfieldSize)
             if df == 0 {
                 //            assert(FALSE);
-                return nil
+                completion("", _pnSize)
             }
             nOffset += Int(nSubfieldSize)
         }
         //    assert(nOffset == nTotalSize);
-        return String(bytes: pachData, encoding: .utf8)
+        completion(String(bytes: pachData, encoding: .utf8) ?? "", _pnSize)
     }
 
     func log() {
