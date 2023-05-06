@@ -10,7 +10,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class DFFRecord;
+@class DDFRecord;
 @class DDFFieldDefinition;
 
 /**

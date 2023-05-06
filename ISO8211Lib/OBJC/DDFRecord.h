@@ -15,6 +15,7 @@
 
 @class DDFModule;
 @class DDFFieldDefinition;
+@class DDFField;
 
 /**
  * Contains instance data from one data record (DR).  The data is contained
