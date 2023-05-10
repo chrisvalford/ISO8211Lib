@@ -60,7 +60,9 @@ char *pachBuffer;
     pszFormatString = [pszFormat copy];
     
     // These values will likely be used.
-    if ([pszFormatString length] > 1) {
+    if ([pszFormatString length] == 1 && [pszFormatString characterAtIndex: 0] != '(') {
+        bIsVariable = TRUE;
+    } else if ([pszFormatString length] > 1) {
         if([pszFormatString characterAtIndex: 1] == '(') {
             nFormatWidth = atoi([[pszFormatString substringFromIndex: 2] cStringUsingEncoding: NSUTF8StringEncoding]);
             bIsVariable = (nFormatWidth == 0);
@@ -68,7 +70,6 @@ char *pachBuffer;
             bIsVariable = TRUE;
         }
     }
-    assert([pszFormatString length] > 1);
     // Interpret the format string.
     switch([pszFormatString characterAtIndex: 0]) {
         case 'A':

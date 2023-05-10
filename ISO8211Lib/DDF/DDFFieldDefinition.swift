@@ -239,28 +239,44 @@ import Foundation
         }
 
         // Capture the field name, description (sub field names), and format statements.
-        let bytes1 = Array(pachFieldArea.suffix(Int(iFDOffset))).map { Int8($0) }
-        _fieldName = DDFUtils.ddfFetchVariable(bytes1,
-                                               nMaxChars: Int32(nFieldEntrySize) - iFDOffset,
-                                               nDelimChar1: DDF_UNIT_TERMINATOR,
-                                               nDelimChar2: DDF_FIELD_TERMINATOR,
-                                               pnConsumedChars: &nCharsConsumed).byteArray
+        var bytes1 = Array(pachFieldArea[Int(iFDOffset)...]).map { CChar($0) }
+        bytes1.append(0)
+        guard let fn = DDFUtils.ddfFetchVariable(bytes1,
+                                           nMaxChars: Int32(nFieldEntrySize) - iFDOffset,
+                                           nDelimChar1: DDF_UNIT_TERMINATOR,
+                                           nDelimChar2: DDF_FIELD_TERMINATOR,
+                                                 pnConsumedChars: &nCharsConsumed) else {
+            debugPrint("Error fetching _fieldName")
+            return false
+        }
+        debugPrint("Fetched _fieldName: \(_fieldName)")
+        _fieldName = fn.byteArray
         iFDOffset += nCharsConsumed;
 
-        let bytes2 = Array(pachFieldArea.suffix(Int(iFDOffset))).map { Int8($0) }
+        var bytes2 = Array(pachFieldArea[Int(iFDOffset)...]).map { CChar($0) }
+        bytes2.append(0)
         _arrayDescr = DDFUtils.ddfFetchVariable(bytes2,
                                                 nMaxChars: Int32(nFieldEntrySize) - iFDOffset,
                                                 nDelimChar1: DDF_UNIT_TERMINATOR,
                                                 nDelimChar2: DDF_FIELD_TERMINATOR,
                                                 pnConsumedChars: &nCharsConsumed)
-        iFDOffset += nCharsConsumed;
+        debugPrint("Fetched _arrayDescr: \(_arrayDescr)")
+        if nCharsConsumed > 0 {
+            iFDOffset += nCharsConsumed;
+        }
 
-        let bytes3 = Array(pachFieldArea.suffix(Int(iFDOffset))).map { Int8($0) }
-        _formatControls = DDFUtils.ddfFetchVariable(bytes3,
-                                                    nMaxChars: Int32(nFieldEntrySize) - iFDOffset,
-                                                    nDelimChar1: DDF_UNIT_TERMINATOR,
-                                                    nDelimChar2: DDF_FIELD_TERMINATOR,
-                                                    pnConsumedChars: &nCharsConsumed).byteArray
+        var bytes3 = Array(pachFieldArea[Int(iFDOffset)...]).map { CChar($0) }
+        bytes3.append(0)
+        guard let fc = DDFUtils.ddfFetchVariable(bytes3,
+                                                 nMaxChars: Int32(nFieldEntrySize) - iFDOffset,
+                                                 nDelimChar1: DDF_UNIT_TERMINATOR,
+                                                 nDelimChar2: DDF_FIELD_TERMINATOR,
+                                                 pnConsumedChars: &nCharsConsumed) else {
+            debugPrint("Error fetching _formatControls")
+            return false
+        }
+        debugPrint("Fetched _formatControls: \(_formatControls)")
+        _formatControls = fc.byteArray
 
         // Parse the subfield info.
         if _data_struct_code != .dsc_elementary {
@@ -319,6 +335,12 @@ import Foundation
         var pszFormatList: [UInt8] = []
         var papszFormatItems: [[UInt8]]
 
+        // DEBUG:
+        var fc: [UInt8] = [UInt8](repeating: 0, count: _formatControls.count+1)
+        fc.insert(contentsOf: _formatControls, at: 0)
+        debugPrint("_formatControls: \(String(cString: fc))")
+        // end DEBUG
+
         // Verify that the format string is contained within brackets.
         if _formatControls.count < 2
             || _formatControls[0] != "(".asciiValue
@@ -336,36 +358,42 @@ import Foundation
 
         // Apply the format items to subfields.
         var iFormatItem: Int = 0
-        //    for(iFormatItem = 0; papszFormatItems[iFormatItem] != NULL; iFormatItem++ ) {
-        for n in 0 ..< papszFormatItems.count {
-            var pszPastPrefix: [UInt8] = papszFormatItems[n]
+        for index in 0..<papszFormatItems.count {
+            if papszFormatItems[index].isEmpty {
+                break
+            }
+            iFormatItem = index
+
+            var pszPastPrefix: [UInt8] = papszFormatItems[iFormatItem]
             var ppCount = 0
             // FIXME: Is this supposed to find the last occurance of a number?
-            for i in 0 ..< pszPastPrefix.count {
-                if pszPastPrefix[i] >= "0".asciiValue && pszPastPrefix[i] <= "9".asciiValue {
-                    ppCount += 1
-                }
-            }
+//            for i in 0 ..< pszPastPrefix.count {
+//                if pszPastPrefix[i] >= "0".asciiValue && pszPastPrefix[i] <= "9".asciiValue {
+//                    ppCount += 1  // The start index i n pszPastPrefix
+//                }
+//            }
+            debugPrint(ppCount)
 
             // Did we get too many formats for the subfields created by names?
             // This may be legal by the 8211 specification, but isn't encountered
             // in any formats we care about so we just blow.
-            if n >= subfieldDefinitions.count {
+            if iFormatItem >= subfieldDefinitions.count {
                 debugPrint("Got more formats than subfields for field '%@'.", _tag ?? "MISSING")
                 break
             }
             // FIXME:
-            //            if !subfieldDefinitions[iFormatItem].setFormat(pszPastPrefix[ppCount...]) {
-            //                return false
-            //            }
-            iFormatItem = n
+            let str = String(bytes: Array(pszPastPrefix[ppCount...]), encoding: .utf8)
+            let result = subfieldDefinitions[iFormatItem].setFormat(str)
+            if result == 0 { // false
+                return false
+            }
         }
 
         // Verify that we got enough formats, cleanup and return.
         papszFormatItems.removeAll()
 
         if iFormatItem < subfieldDefinitions.count {
-            debugPrint("Got less formats than subfields for field '%@'.", _tag ?? "MISSING");
+            debugPrint("Got less formats than subfields for field: \(_tag ?? "MISSING").");
             return false
         }
 
