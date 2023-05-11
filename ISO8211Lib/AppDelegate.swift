@@ -33,7 +33,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 break
             }
             iRecord += 1
-            debugPrint("Record %d (%d bytes)\n", iRecord, poRecord.getDataSize)
+            debugPrint("Record \(iRecord) (\(poRecord.getDataSize) bytes)")
             
             // Loop over each field in this particular record.
             // TODO: Check why this value is too large
@@ -62,9 +62,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let poFieldDefn: DDFFieldDefinition = poField.getFieldDefn!
         
         // Report general information about the field.
-        debugPrint("    Field %s: %@\n",
-                   poFieldDefn.getName ,
-                   poFieldDefn.getDescription )
+        debugPrint("    Field \(poFieldDefn.getName()): \(poFieldDefn.getDescription())")
         
         // Get pointer to this fields raw data.  We will move through
         // it consuming data as we report subfield values.
@@ -82,7 +80,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                                       pachFieldData: pachFieldData,
                                                       nBytesRemaining: nBytesRemaining)
                     nBytesRemaining -= nBytesConsumed
-                    pachFieldData = String(pachFieldData.suffix(nBytesConsumed))
+                    pachFieldData = String(Array(pachFieldData[nBytesConsumed...]))
                 }
             }
         }
@@ -98,36 +96,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         switch poSFDefn.getType {
         case .int:
             if poSFDefn.getBinaryFormat == DDFBinaryFormat.uInt {
-                debugPrint( "        %s = %u\n",
-                            poSFDefn.name ?? "MISSING",
-                            poSFDefn.extractIntData(pachFieldData,
-                                                    nMaxBytes: Int32(nBytesRemaining),
-                                                    pnConsumedBytes: &nBytesConsumed)
-                )
+                let r = poSFDefn.extractIntData(pachFieldData,
+                                                nMaxBytes: Int32(nBytesRemaining),
+                                                pnConsumedBytes: &nBytesConsumed)
+                debugPrint( "        \(poSFDefn.name ?? "MISSING") = \(r)")
             } else {
-                debugPrint( "        %s = %d\n",
-                            poSFDefn.name ?? "MISSING",
-                            poSFDefn.extractIntData( pachFieldData,
-                                                     nMaxBytes: Int32(nBytesRemaining),
-                                                     pnConsumedBytes: &nBytesConsumed)
-                )
+                let r = poSFDefn.extractIntData(pachFieldData,
+                                                nMaxBytes: Int32(nBytesRemaining),
+                                                pnConsumedBytes: &nBytesConsumed)
+                debugPrint( "        \(poSFDefn.name ?? "MISSING") = \(r)")
             }
             
         case .float:
-            debugPrint( "        %s = %f\n",
-                        poSFDefn.name ?? "MISSING",
-                        poSFDefn.extractFloatData(pachFieldData,
-                                                  nMaxBytes: Int32(nBytesRemaining),
-                                                  pnConsumedBytes: &nBytesConsumed)
-            )
+            let r = poSFDefn.extractFloatData(pachFieldData,
+                                              nMaxBytes: Int32(nBytesRemaining),
+                                              pnConsumedBytes: &nBytesConsumed)
+            debugPrint( "        \(poSFDefn.name ?? "MISSING") = \(r)")
             
         case .string:
-            debugPrint("        %s = '%@'\n",
-                       poSFDefn.name ?? "MISSING",
-                       poSFDefn.extractStringData(pachFieldData,
-                                                  nMaxBytes: Int32(nBytesRemaining),
-                                                  pnConsumedBytes: &nBytesConsumed) ?? ""
-            )
+            let r = poSFDefn.extractStringData(pachFieldData,
+                                               nMaxBytes: Int32(nBytesRemaining),
+                                               pnConsumedBytes: &nBytesConsumed) ?? ""
+            debugPrint("        \(poSFDefn.name ?? "MISSING") = \(r)")
             
         case .binaryString:
             //rjensen 19-Feb-2002 5 integer variables to decode NAME and LNAM
@@ -142,13 +132,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                                                          nMaxBytes: Int32(nBytesRemaining),
                                                          pnConsumedBytes: &nBytesConsumed).utf8CString
             
-            debugPrint("        %s = 0x", poSFDefn.name ?? "MISSING")
+            debugPrint("        \(poSFDefn.name ?? "MISSING") = 0x")
             for i in 0 ..< min(Int(nBytesConsumed), 24) {
                 debugPrint( "%02X", pabyBString[i] )
             }
             
             if nBytesConsumed > 24 {
-                debugPrint( "%s", "..." )
+                debugPrint("...")
             }
             
             // rjensen 19-Feb-2002 S57 quick hack. decode NAME and LNAM bitfields
@@ -159,7 +149,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let bs3 = Int(pabyBString[3]) * 65536
                 let bs4 = Int(pabyBString[4]) * 16777216
                 vrid_rcid = bs1 + bs2 + bs3 + bs4
-                debugPrint("\tVRID RCNM = %d,RCID = %u",vrid_rcnm, vrid_rcid)
+                debugPrint("    VRID RCNM = \(vrid_rcnm), RCID = \(vrid_rcid)")
             } else if "LNAM" == poSFDefn.name {
                 foid_agen = Int(pabyBString[0]) + (Int(pabyBString[1]) * 256)
                 let bs2 = Int(pabyBString[2])
@@ -168,9 +158,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 let bs5 = Int(pabyBString[5]) * 16777216
                 foid_find = bs2 + bs3 + bs4 + bs5
                 foid_fids = Int(pabyBString[6]) + (Int(pabyBString[7])*256)
-                debugPrint("\tFOID AGEN = %u,FIDN = %u,FIDS = %u", foid_agen, foid_find, foid_fids)
+                debugPrint("    FOID AGEN = \(foid_agen), FIDN = \(foid_find), FIDS = \(foid_fids)")
             }
-            debugPrint( "\n" );
+            debugPrint(" ")
         @unknown default:
             debugPrint("Unknown Type")
         }

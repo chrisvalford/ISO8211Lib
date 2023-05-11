@@ -179,8 +179,16 @@
             
             // Create DDFField and assign the info.
             DDFField *newDDFField = [[DDFField alloc] init];
+
+            //FIXME:
+            //NSString *data = [NSString stringWithCString: pachData + _fieldAreaStart + nFieldPos - nLeaderSize  encoding: NSUTF8StringEncoding];
+            NSString *data = [NSString stringWithUTF8String: pachData + _fieldAreaStart + nFieldPos - nLeaderSize];
+            //assert(data != NULL);
+            if (data == NULL) {
+                return FALSE;
+            }
             [newDDFField initialize: poFieldDefn
-                            pszData: [NSString stringWithCString: pachData + _fieldAreaStart + nFieldPos - nLeaderSize  encoding: NSUTF8StringEncoding]
+                            pszData: data
                               nSize: nFieldLength];
             [paoFields addObject: newDDFField];
         }
@@ -293,8 +301,11 @@
             }
             DDFField *newDDFField = [[DDFField alloc] init];
             // Assign info the DDFField.
+
+            NSString *data = [NSString stringWithCString: pachData + _fieldAreaStart + nFieldPos - nLeaderSize encoding: NSUTF8StringEncoding];
+            assert(data != NULL);
             [newDDFField initialize: poFieldDefn
-                            pszData: [NSString stringWithCString: pachData + _fieldAreaStart + nFieldPos - nLeaderSize encoding: NSUTF8StringEncoding]
+                            pszData: data
                               nSize: nFieldLength];
             [paoFields addObject: newDDFField];
         }
@@ -366,8 +377,11 @@
     for(i = 0; i < nFieldCount; i++) {
         DDFField *field = paoFields[i];
         int nOffset = [[field getData] UTF8String] - pachOldData;
+
+        NSString *data = [NSString stringWithUTF8String: pachData + nOffset];
+        assert(data != NULL);
         [field initialize: paoFields[i]
-                  pszData: [NSString stringWithUTF8String: pachData + nOffset]];
+                  pszData: data];
     }
     
     // Shift the data beyond this field up or down as needed.
@@ -378,8 +392,10 @@
     }
     
     // Update the target fields info.
+    NSString *data = [poField getData];
+    assert(data != NULL);
     [poField initialize: [poField getFieldDefn]
-                pszData: [poField getData]
+                pszData: data
                   nSize: [poField getDataSize] + nBytesToAdd];
 
     // Shift all following fields down, and update their data locations.
@@ -387,15 +403,19 @@
         for(i = iTarget+1; i < nFieldCount; i++) {
             DDFField *field = paoFields[i];
             NSString *pszOldDataLocation = [field getData];
+            NSString *data = [pszOldDataLocation substringFromIndex: nBytesToAdd];
+            assert(data != NULL);
             [paoFields[i] initialize: field
-                             pszData: [pszOldDataLocation substringFromIndex: nBytesToAdd]];
+                             pszData: data];
         }
     } else {
         for(i = nFieldCount-1; i > iTarget; i--) {
             DDFField *field = paoFields[i];
             NSString *pszOldDataLocation = [field getData];
+            NSString *data = [pszOldDataLocation substringFromIndex: nBytesToAdd];
+            assert(data != NULL);
             [paoFields[i] initialize: paoFields[i]
-                             pszData: [pszOldDataLocation substringFromIndex: nBytesToAdd]];
+                             pszData: data];
         }
     }
     return TRUE;
@@ -451,10 +471,12 @@
 //                                            0);
         
         // Create a new DDFField with this definition
-        DDFField *newField = [[DDFField alloc] init];
-        [newField initialize: poDefn pszData: [NSString stringWithCString: [self getData] encoding: NSUTF8StringEncoding] nSize:0];
-        [paoFields addObject: newField];
-        nFieldCount++;
+    DDFField *newField = [[DDFField alloc] init];
+    NSString *data = [NSString stringWithCString: [self getData] encoding: NSUTF8StringEncoding];
+    assert(data != NULL);
+    [newField initialize: poDefn pszData: data nSize:0];
+    [paoFields addObject: newField];
+    nFieldCount++;
 //    }
     
     // Initialize field.
@@ -1048,8 +1070,11 @@
         for(iField = 0; iField < nFieldCount; iField++) {
             DDFField *poField = [self getField: iField];
             int nOffset = [[poField getData] cStringUsingEncoding: NSUTF8StringEncoding] - pachData - nFieldOffset + nDirSize;
+
+            NSString *data = [NSString stringWithUTF8String: pachNewData + nOffset];
+            assert(data != NULL);
             [poField initialize: [poField getFieldDefn]
-                        pszData: [NSString stringWithUTF8String: pachNewData + nOffset]
+                        pszData: data
                           nSize: [poField getDataSize]];
         }
         
@@ -1094,8 +1119,11 @@
         nOffset = ([[field getData] UTF8String] - pachData);
 
         DDFField *recordField = poNR->paoFields[i];
+
+        NSString *data = [NSString stringWithUTF8String: poNR->pachData + nOffset];
+        assert(data != NULL);
         [recordField initialize: [field getFieldDefn]
-                        pszData: [NSString stringWithUTF8String: poNR->pachData + nOffset]
+                        pszData: data
                           nSize: [field getDataSize]];
         poNR->paoFields[i] = recordField;
 
@@ -1150,9 +1178,11 @@
         DDFFieldDefinition *poDefn;
 
         poDefn = [poTargetModule findFieldDefn: [[poField getFieldDefn] getName]];
-        
+
+        NSString *data = [poField getData];
+        assert(data != NULL);
         [poField initialize: poDefn
-                    pszData: [poField getData]
+                    pszData: data
                       nSize: [poField getDataSize]];
     }
 

@@ -392,7 +392,7 @@ import Foundation
         // Verify that we got enough formats, cleanup and return.
         papszFormatItems.removeAll()
 
-        if iFormatItem < subfieldDefinitions.count {
+        if iFormatItem < ( subfieldDefinitions.count - 1) {
             debugPrint("Got less formats than subfields for field: \(_tag ?? "MISSING").");
             return false
         }
